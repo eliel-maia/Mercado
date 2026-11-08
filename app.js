@@ -1,5 +1,5 @@
 /* ==========================================================================
-   01. REGISTRO E CONTROLE DO SERVICE WORKER (PWA)
+   01. REGISTRO E CONTROLE DO SERVICE WORKER E INSTALAÇÃO PWA
    ========================================================================== */
 if ('serviceWorker' in navigator) {
   window.addEventListener('load', () => {
@@ -10,19 +10,37 @@ if ('serviceWorker' in navigator) {
 }
 
 let deferredPrompt = null;
+
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
+  console.log('beforeinstallprompt capturado com sucesso.');
+});
+
+window.addEventListener('appinstalled', () => {
+  deferredPrompt = null;
+  console.log('PWA instalada com sucesso!');
 });
 
 function triggerInstall() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
-    deferredPrompt.userChoice.then(() => {
+    deferredPrompt.userChoice.then((choiceResult) => {
+      if (choiceResult.outcome === 'accepted') {
+        console.log('Utilizador aceitou a instalação.');
+      } else {
+        console.log('Utilizador recusou a instalação.');
+      }
       deferredPrompt = null;
     });
   } else {
-    alert("Para instalar o Mercado Compare:\n\n• No Android (Chrome): Toque nos 3 pontos e escolha 'Instalar aplicação'.\n• No iPhone (Safari): Toque em Partilha e 'Adicionar ao Ecrã Principal'.");
+    const isIOS = /iphone|ipad|ipod/.test(window.navigator.userAgent.toLowerCase());
+    
+    if (isIOS) {
+      alert("Para instalar no iPhone/iPad:\n\n1. Toque no botão de Partilha (ícone quadrado com uma seta para cima) na barra inferior do Safari.\n2. Role para baixo e selecione 'Adicionar ao Ecrã Principal'.");
+    } else {
+      alert("Para instalar o aplicativo:\n\n• No Android (Chrome): Toque nos 3 pontos no canto superior direito e escolha 'Instalar aplicação' ou 'Adicionar ao ecrã principal'.");
+    }
   }
 }
 
@@ -53,8 +71,8 @@ let activeCategoryFilter = 'Todos';
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v60');
-    const savedItems = localStorage.getItem('mc_items_v60');
+    const savedStores = localStorage.getItem('mc_stores_v61');
+    const savedItems = localStorage.getItem('mc_items_v61');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
@@ -64,8 +82,8 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v60', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v60', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v61', JSON.stringify(stores));
+  localStorage.setItem('mc_items_v61', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -290,7 +308,7 @@ document.getElementById('backupModalBtn').onclick = () => backupModal.classList.
 document.getElementById('closeBackupModal').onclick = () => backupModal.classList.add('hidden');
 
 document.getElementById('exportJsonBtn').onclick = () => {
-  const data = { version: 'v60', stores, items };
+  const data = { version: 'v61', stores, items };
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
