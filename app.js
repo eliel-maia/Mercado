@@ -539,14 +539,14 @@ function applyTheme(isDark) {
   
   if (isDark) {
     document.documentElement.classList.add('dark');
-    document.documentElement.style.colorScheme = 'dark'; // Força o Android a pintar a barra inferior de escuro
+    document.documentElement.style.colorScheme = 'dark';
     sunIcon.classList.remove('hidden');
     moonIcon.classList.add('hidden');
     localStorage.setItem('mc_theme', 'dark');
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#0b0b0e');
   } else {
     document.documentElement.classList.remove('dark');
-    document.documentElement.style.colorScheme = 'light'; // Força o Android a pintar a barra inferior de claro
+    document.documentElement.style.colorScheme = 'light';
     sunIcon.classList.add('hidden');
     moonIcon.classList.remove('hidden');
     localStorage.setItem('mc_theme', 'light');
@@ -561,4 +561,3 @@ document.addEventListener('DOMContentLoaded', () => {
   initData();
   renderAll();
 });
-
