@@ -11,6 +11,7 @@ if ('serviceWorker' in navigator) {
 
 let deferredPrompt = null;
 
+// Captura o evento nativo para permitir a instalação da PWA
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -22,6 +23,7 @@ window.addEventListener('appinstalled', () => {
   console.log('PWA instalada com sucesso!');
 });
 
+// Dispara o prompt de instalação (com suporte a Android e orientações para iOS)
 function triggerInstall() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
@@ -45,7 +47,7 @@ function triggerInstall() {
 }
 
 /* ==========================================================================
-   02. DADOS E LÓGICA DO APLICATIVO
+   02. DADOS INICIAIS E PERSISTÊNCIA (LocalStorage)
    ========================================================================== */
 const defaultStores = [
   { id: 's1', name: 'Coop' },
@@ -71,8 +73,8 @@ let activeCategoryFilter = 'Todos';
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v61');
-    const savedItems = localStorage.getItem('mc_items_v61');
+    const savedStores = localStorage.getItem('mc_stores_v63');
+    const savedItems = localStorage.getItem('mc_items_v63');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
@@ -82,8 +84,8 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v61', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v61', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v63', JSON.stringify(stores));
+  localStorage.setItem('mc_items_v63', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -97,6 +99,9 @@ function renderAll() {
   renderSummaries();
 }
 
+/* ==========================================================================
+   03. RENDERIZAÇÃO DE CATEGORIAS E FILTROS
+   ========================================================================== */
 function renderCategoryPills() {
   const container = document.getElementById('categoryPills');
   const categoriesSet = new Set(items.map(i => i.category || 'Outros'));
@@ -119,6 +124,9 @@ function filterByCategory(cat) {
   renderAll();
 }
 
+/* ==========================================================================
+   04. RENDERIZAÇÃO DA LISTA DE PRODUTOS E CARDS
+   ========================================================================== */
 function renderCardsList() {
   const container = document.getElementById('cardsListContainer');
   const searchQuery = document.getElementById('searchInput').value.toLowerCase();
@@ -227,6 +235,9 @@ function renderCardsList() {
   }).join('');
 }
 
+/* ==========================================================================
+   05. RESUMOS SUPERIORES POR MERCADO
+   ========================================================================== */
 function renderSummaries() {
   const container = document.getElementById('storeSummaries');
   const storeTotals = {};
@@ -302,13 +313,15 @@ function deleteItem(id) {
   }
 }
 
-// Modais Backup
+/* ==========================================================================
+   06. MODAL DE BACKUP E RESTAURO DE DADOS
+   ========================================================================== */
 const backupModal = document.getElementById('backupModal');
 document.getElementById('backupModalBtn').onclick = () => backupModal.classList.remove('hidden');
 document.getElementById('closeBackupModal').onclick = () => backupModal.classList.add('hidden');
 
 document.getElementById('exportJsonBtn').onclick = () => {
-  const data = { version: 'v61', stores, items };
+  const data = { version: 'v63', stores, items };
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
@@ -339,6 +352,7 @@ document.getElementById('importJsonInput').onchange = (e) => {
     };
   }
 };
+
 document.getElementById('resetDataBtn').onclick = () => {
   if (confirm('Deseja restaurar os dados originais?')) {
     stores = defaultStores;
@@ -351,7 +365,9 @@ document.getElementById('resetDataBtn').onclick = () => {
   }
 };
 
-// Modal Item
+/* ==========================================================================
+   07. MODAL DE ADICIONAR / EDITAR ITENS E PRIORIDADE DE MERCADO
+   ========================================================================== */
 const itemModal = document.getElementById('itemModal');
 document.getElementById('addItemBtn').onclick = () => openItemModal();
 document.getElementById('closeItemModal').onclick = () => itemModal.classList.add('hidden');
@@ -468,7 +484,9 @@ document.getElementById('itemForm').onsubmit = (e) => {
   itemModal.classList.add('hidden');
 };
 
-// Modal Mercados
+/* ==========================================================================
+   08. MODAL DE GERENCIAR MERCADOS
+   ========================================================================== */
 const storeModal = document.getElementById('storeModal');
 document.getElementById('manageStoresBtn').onclick = () => openStoreModal();
 document.getElementById('closeStoreModal').onclick = () => storeModal.classList.add('hidden');
@@ -509,22 +527,28 @@ function removeStore(id) {
 
 document.getElementById('searchInput').oninput = () => renderCardsList();
 
-// Tema
+/* ==========================================================================
+   09. GESTÃO DE TEMA (Claro/Escuro) E CORES DAS BARRAS DO SISTEMA
+   ========================================================================== */
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const sunIcon = document.getElementById('sunIcon');
 const moonIcon = document.getElementById('moonIcon');
 
 function applyTheme(isDark) {
+  const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+  
   if (isDark) {
     document.documentElement.classList.add('dark');
     sunIcon.classList.remove('hidden');
     moonIcon.classList.add('hidden');
     localStorage.setItem('mc_theme', 'dark');
+    if (metaThemeColor) metaThemeColor.setAttribute('content', '#0b0b0e');
   } else {
     document.documentElement.classList.remove('dark');
     sunIcon.classList.add('hidden');
     moonIcon.classList.remove('hidden');
     localStorage.setItem('mc_theme', 'light');
+    if (metaThemeColor) metaThemeColor.setAttribute('content', '#f4f4f6');
   }
 }
 
