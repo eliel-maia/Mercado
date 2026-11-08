@@ -30,7 +30,6 @@ html, body {
   -webkit-tap-highlight-color: transparent;
   user-select: none;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-  overscroll-behavior-y: none; /* Evita o efeito elástico que revela fundos brancos/desalinhados */
 }
 
 .app-card {
