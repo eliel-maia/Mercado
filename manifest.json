@@ -1,0 +1,17 @@
+{
+  "name": "Mercado Compare",
+  "short_name": "MercadoCompare",
+  "start_url": "/mercado-/index.html",
+  "scope": "/mercado-/",
+  "display": "standalone",
+  "background_color": "#0b0b0e",
+  "theme_color": "#0b0b0e",
+  "icons": [
+    {
+      "src": "https://api.iconify.design/lucide:shopping-cart.svg?color=%23f97316",
+      "sizes": "512x512",
+      "type": "image/svg+xml",
+      "purpose": "any maskable"
+    }
+  ]
+}

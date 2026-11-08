@@ -1,1215 +1,165 @@
 <!DOCTYPE html>
-
-<html lang="pt-BR">
+<html lang="pt-BR" class="dark">
 <head>
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" name="viewport"/>
-<title>Mercado Compare - App Completo</title>
-<!-- Tailwind CSS CDN -->
-<script src="https://cdn.tailwindcss.com"></script>
-<link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet"/>
-<style>
-    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
-    * {
-      font-family: 'Inter', sans-serif;
-      -webkit-tap-highlight-color: transparent;
-      user-select: none;
-    }
-    input, textarea {
-      user-select: auto;
-    }
-    /* Custom scrollbars */
-    ::-webkit-scrollbar {
-      height: 4px;
-      width: 4px;
-    }
-    ::-webkit-scrollbar-track {
-      background: #0f1117;
-    }
-    ::-webkit-scrollbar-thumb {
-      background: #2a2e3d;
-      border-radius: 9999px;
-    }
-    .draggable-source {
-      opacity: 0.45;
-      transform: scale(0.97);
-    }
-    .drag-over {
-      outline: 2px dashed #6366f1;
-      outline-offset: 2px;
-    }
-    .active-nav-tab {
-      color: #818cf8;
-    }
-    .active-nav-tab .tab-indicator {
-      display: block;
-    }
-  </style>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Mercado Compare</title>
+
+  <!-- PWA e Meta Tags -->
+  <link rel="manifest" href="./manifest.json">
+  <meta name="theme-color" content="#0b0b0e">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Mercado Compare">
+  <link rel="apple-touch-icon" href="https://api.iconify.design/lucide:shopping-cart.svg?color=%23f97316">
+
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="stylesheet" href="style.css">
 </head>
-<body class="bg-[#0b0c10] text-[#f1f5f9] flex justify-center min-h-screen">
-<!-- Mobile Viewport Frame -->
-<div class="w-full max-w-[420px] min-h-screen bg-[#0f1117] flex flex-col shadow-2xl relative border-x border-[#1e2230]">
-<!-- ========================================== -->
-<!-- VIEW 1: COMPARADOR (TELA PRINCIPAL)       -->
-<!-- ========================================== -->
-<div class="flex-1 flex flex-col pb-20" id="view-comparador">
-<!-- Top Bar -->
-<header class="p-4 pt-5 border-b border-[#1e2230] bg-[#131620] sticky top-0 z-20">
-<div class="flex items-center justify-between">
-<div class="flex items-center space-x-3">
-<div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg shadow-indigo-600/30">
-<i class="fa-solid fa-cart-shopping text-white text-lg"></i>
-</div>
-<div>
-<h1 class="font-bold text-lg leading-tight tracking-tight text-white flex items-center gap-1.5">
-                Mercado Compare
-                <span class="w-2 h-2 rounded-full bg-emerald-400 inline-block animate-pulse"></span>
-</h1>
-<p class="text-xs text-slate-400 font-medium" id="header-market-count">4 Mercados Ativos</p>
-</div>
-</div>
-<div class="flex items-center space-x-2">
-<button class="w-9 h-9 rounded-lg bg-[#1e2230] hover:bg-[#282d3f] text-slate-300 flex items-center justify-center transition active:scale-95" onclick="exportDataJson()" title="Backup / Exportar">
-<i class="fa-solid fa-download text-sm"></i>
-</button>
-<button class="w-9 h-9 rounded-lg bg-[#1e2230] hover:bg-[#282d3f] text-slate-300 flex items-center justify-center transition active:scale-95" onclick="toggleInfoModal()" title="Instruções">
-<i class="fa-solid fa-circle-question text-sm"></i>
-</button>
-</div>
-</div>
-<!-- Search Bar -->
-<div class="mt-3.5 relative">
-<i class="fa-solid fa-magnifying-glass absolute left-3.5 top-1/2 -translate-y-1/2 text-slate-400 text-sm"></i>
-<input class="w-full bg-[#181b26] border border-[#262b3c] focus:border-indigo-500 text-sm rounded-xl py-2.5 pl-10 pr-9 text-slate-100 placeholder-slate-500 focus:outline-none transition shadow-inner" id="search-input" oninput="handleSearch(this.value)" placeholder="Pesquisar produto ou categoria..." type="text"/>
-<button class="hidden absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-200 text-xs" id="clear-search-btn" onclick="clearSearch()">
-<i class="fa-solid fa-xmark"></i>
-</button>
-</div>
-<!-- Quick Primary Action Buttons -->
-<div class="flex items-center gap-2 mt-3"><button class="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs shadow-md shadow-indigo-600/20 active:scale-[0.98] transition" onclick="openNewItemModal()"><i class="fa-solid fa-plus text-[11px]"></i><span>Novo Item</span></button><button class="flex-1 flex items-center justify-center gap-1.5 py-2 px-3 rounded-xl bg-[#1d2232] hover:bg-[#252b40] text-slate-200 border border-[#2b3248] font-medium text-xs active:scale-[0.98] transition" onclick="switchView('mercados')"><i class="fa-solid fa-store text-indigo-400 text-[11px]"></i><span>Mercados</span></button></div>
-</header>
-<!-- Drag & Drop Order Notice & Market Overview Cards -->
-<section class="p-4 border-b border-[#1e2230] bg-[#12151e]">
-<div class="flex items-center justify-between mb-2.5"><div class="flex items-center gap-1.5 text-xs font-semibold text-slate-300"><i class="fa-solid fa-store text-indigo-400 text-xs"></i><span>Mercados Ativos</span></div><button class="text-xs text-indigo-400 font-medium hover:underline flex items-center gap-1" onclick="switchView('mercados')"><i class="fa-solid fa-arrows-up-down-left-right text-[10px]"></i>Gerenciar</button></div>
-<!-- Horizontal scrollable draggable cards -->
-<div class="flex gap-2.5 overflow-x-auto pb-1.5 pt-0.5 no-scrollbar" id="market-cards-scroll">
-<!-- Rendered via JS -->
-</div>
-</section>
-<!-- Category Filter Pills -->
-<section class="px-4 py-2.5 bg-[#0f1117] border-b border-[#1b1f2c] flex items-center gap-2 overflow-x-auto no-scrollbar">
-<button class="category-pill active text-xs font-medium px-3 py-1 rounded-full bg-indigo-600 text-white border border-indigo-500 whitespace-nowrap transition" id="pill-cat-todos" onclick="filterCategory('todos')">
-          Todos (<span id="count-all">0</span>)
-        </button>
-<button class="category-pill text-xs font-medium px-3 py-1 rounded-full bg-[#181b26] text-slate-400 border border-[#262b3c] whitespace-nowrap transition" id="pill-cat-Higiene" onclick="filterCategory('Higiene')">
-          Higiene
-        </button>
-<button class="category-pill text-xs font-medium px-3 py-1 rounded-full bg-[#181b26] text-slate-400 border border-[#262b3c] whitespace-nowrap transition" id="pill-cat-Alimentos" onclick="filterCategory('Alimentos')">
-          Alimentos
-        </button>
-<button class="category-pill text-xs font-medium px-3 py-1 rounded-full bg-[#181b26] text-slate-400 border border-[#262b3c] whitespace-nowrap transition" id="pill-cat-Limpeza" onclick="filterCategory('Limpeza')">
-          Limpeza
-        </button>
-<button class="category-pill text-xs font-medium px-3 py-1 rounded-full bg-[#181b26] text-slate-400 border border-[#262b3c] whitespace-nowrap transition" id="pill-cat-Hortifruti" onclick="filterCategory('Hortifruti')">
-          Hortifruti
-        </button>
-</section>
-<!-- Comparison Products List -->
-<main class="flex-1 p-4"><div class="w-full overflow-x-auto no-scrollbar pb-2"><div class="min-w-[480px]"><div class="flex items-center py-2 px-3 text-[11px] font-bold text-slate-400 uppercase tracking-wider border-b border-[#1f2434] mb-2" id="table-store-headers-row"><div class="w-44 flex-shrink-0 text-left">Item / Qtd</div><div class="flex-1 flex items-center gap-2" id="table-store-headers"></div><div class="w-14 flex-shrink-0 text-right">Ações</div></div><div class="space-y-2" id="product-list-container"></div></div></div><div class="hidden py-12 text-center" id="empty-state"><div class="w-16 h-16 mx-auto mb-3 rounded-2xl bg-[#1a1e2b] flex items-center justify-center text-slate-500 text-2xl"><i class="fa-solid fa-basket-shopping"></i></div><h3 class="text-base font-semibold text-slate-300">Nenhum produto cadastrado</h3><p class="text-xs text-slate-400 max-w-[220px] mx-auto mt-1">Clique em "+ Novo Item" para registrar seus produtos e comparar preços.</p><button class="mt-4 px-4 py-2 bg-indigo-600 rounded-xl text-white text-xs font-medium inline-flex items-center gap-2" onclick="openNewItemModal()"><i class="fa-solid fa-plus"></i> Adicionar Primeiro Item</button></div></main>
-</div>
-<!-- ========================================== -->
-<!-- VIEW 2: GERENCIAR MERCADOS & DRAG & DROP   -->
-<!-- ========================================== -->
-<div class="flex-1 flex flex-col pb-20 hidden" id="view-mercados">
-<!-- Top Bar -->
-<header class="p-4 pt-5 border-b border-[#1e2230] bg-[#131620] sticky top-0 z-20 flex items-center justify-between">
-<div class="flex items-center space-x-3">
-<button class="w-9 h-9 rounded-xl bg-[#1e2230] hover:bg-[#282d3f] text-slate-300 flex items-center justify-center transition active:scale-95" onclick="switchView('comparador')">
-<i class="fa-solid fa-arrow-left text-sm"></i>
-</button>
-<div>
-<h1 class="font-bold text-base leading-tight tracking-tight text-white">Supermercados</h1>
-<p class="text-[11px] text-slate-400 font-medium">Reordenar colunas &amp; Cadastrar</p>
-</div>
-</div>
-<span class="text-xs font-semibold px-2.5 py-1 rounded-full bg-indigo-950 text-indigo-300 border border-indigo-800" id="badge-active-markets">
-          4 Ativos
-        </span>
-</header>
-<!-- Stats Summary -->
-<section class="grid grid-cols-3 gap-2 p-4 bg-[#12151e] border-b border-[#1e2230]">
-<div class="bg-[#181b26] p-2.5 rounded-xl border border-[#252b3d] text-center">
-<p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Cadastrados</p>
-<p class="text-sm font-bold text-white mt-0.5" id="stat-total-markets">4 Lojas</p>
-</div>
-<div class="bg-[#181b26] p-2.5 rounded-xl border border-[#252b3d] text-center">
-<p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Ativos</p>
-<p class="text-sm font-bold text-emerald-400 mt-0.5" id="stat-active-markets">4 em foco</p>
-</div>
-<div class="bg-[#181b26] p-2.5 rounded-xl border border-[#252b3d] text-center">
-<p class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">Líder Geral</p>
-<p class="text-sm font-bold text-indigo-300 mt-0.5 truncate" id="stat-leader-market">Atacadão</p>
-</div>
-</section>
-<!-- Form Cadastrar Novo Mercado -->
-<section class="p-4 border-b border-[#1e2230] bg-[#141824]">
-<div class="flex items-center gap-2 mb-3">
-<div class="w-7 h-7 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center text-xs">
-<i class="fa-solid fa-store"></i>
-</div>
-<div>
-<h3 class="text-xs font-bold text-white uppercase tracking-wider">Cadastrar Novo Mercado</h3>
-<p class="text-[11px] text-slate-400">Adicione lojas para comparar preços simultaneamente</p>
-</div>
-</div>
-<div class="space-y-3">
-<div>
-<label class="block text-[11px] font-semibold text-slate-300 mb-1">Nome do Supermercado *</label>
-<input class="w-full bg-[#1b1f2d] border border-[#293044] focus:border-indigo-500 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none" id="new-market-name" placeholder="Ex: Assaí Atacadista, Pão de Açúcar, Oba" type="text"/>
-</div>
-<div>
-<label class="block text-[11px] font-semibold text-slate-300 mb-1">Unidade / Endereço / Bairro</label>
-<input class="w-full bg-[#1b1f2d] border border-[#293044] focus:border-indigo-500 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none" id="new-market-address" placeholder="Ex: Av. Tiradentes, 1200 - Centro" type="text"/>
-</div>
-<div class="flex items-center gap-3">
-<div class="flex-1">
-<label class="block text-[11px] font-semibold text-slate-300 mb-1.5">Cor da Coluna</label>
-<div class="flex items-center gap-2" id="color-picker-container">
-<button class="color-btn w-6 h-6 rounded-full bg-emerald-500 ring-2 ring-white transition" onclick="selectMarketColor('#10b981', this)" type="button"></button>
-<button class="color-btn w-6 h-6 rounded-full bg-blue-500 transition" onclick="selectMarketColor('#3b82f6', this)" type="button"></button>
-<button class="color-btn w-6 h-6 rounded-full bg-amber-500 transition" onclick="selectMarketColor('#f59e0b', this)" type="button"></button>
-<button class="color-btn w-6 h-6 rounded-full bg-purple-500 transition" onclick="selectMarketColor('#a855f7', this)" type="button"></button>
-<button class="color-btn w-6 h-6 rounded-full bg-pink-500 transition" onclick="selectMarketColor('#ec4899', this)" type="button"></button>
-</div>
-</div>
-<div>
-<label class="block text-[11px] font-semibold text-slate-300 mb-1.5">Comparar já?</label>
-<label class="relative inline-flex items-center cursor-pointer">
-<input checked="" class="sr-only peer" id="new-market-active" type="checkbox"/>
-<div class="w-11 h-6 bg-[#252a3b] peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-indigo-600"></div>
-<span class="ml-2 text-xs text-slate-400 font-medium peer-checked:text-slate-200">Ativo</span>
-</label>
-</div>
-</div>
-<button class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold flex items-center justify-center gap-2 shadow-md shadow-indigo-600/30 transition active:scale-[0.98]" onclick="saveNewMarket()">
-<i class="fa-solid fa-plus"></i> Adicionar Mercado
-          </button>
-</div>
-</section>
-<!-- Mercados Cadastrados com Lista Drag & Drop -->
-<section class="p-4 flex-1">
-<div class="flex items-center justify-between mb-3">
-<div class="flex items-center gap-2">
-<h3 class="text-xs font-bold text-white uppercase tracking-wider">Mercados Cadastrados</h3>
-<span class="text-[10px] px-1.5 py-0.5 rounded bg-[#252b3d] text-slate-300 font-bold" id="market-list-count">4</span>
-</div>
-<div class="flex items-center gap-1 text-[11px] text-indigo-400 bg-indigo-950/60 px-2 py-1 rounded-lg border border-indigo-800/40">
-<i class="fa-solid fa-arrows-up-down text-[10px]"></i>
-<span>Segure e arraste p/ reordenar</span>
-</div>
-</div>
-<!-- Draggable Market List -->
-<div class="space-y-2.5" id="markets-drag-list">
-<!-- Rendered via JS -->
-</div>
-<!-- Help Info Box -->
-<div class="mt-4 p-3 rounded-xl bg-[#141824] border border-[#202738] flex items-start gap-2.5 text-xs text-slate-400">
-<i class="fa-solid fa-circle-info text-indigo-400 mt-0.5"></i>
-<div>
-<strong class="text-slate-200 font-semibold">Dica:</strong> A ordem dos mercados acima define as colunas de comparação na tela principal. O primeiro e segundo mercados ativos são priorizados na visualização rápida do celular.
+<body class="min-h-screen flex flex-col">
+
+  <!-- Main Container -->
+  <main class="flex-1 w-full space-y-3 pt-2 pb-6 max-w-md mx-auto px-2 sm:px-3">
+
+    <!-- Card Superior Flutuante -->
+    <div class="app-card p-4 rounded-3xl shadow-xl border space-y-3.5 relative overflow-hidden">
+      
+      <!-- Linha 1: Marca + Botão Instalar, Tema e Backup -->
+      <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-2.5">
+          <div class="bg-orange-500/15 text-orange-500 p-2 rounded-2xl shadow-inner">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"></path>
+            </svg>
           </div>
-</div>
-</section>
-<div class="p-4 border-t border-[#1e2230] bg-[#10131d] sticky bottom-0">
-<button class="w-full py-3 bg-gradient-to-r from-indigo-600 to-violet-600 hover:from-indigo-500 hover:to-violet-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/25 active:scale-[0.99] transition" onclick="switchView('comparador')">
-<i class="fa-solid fa-check"></i> Concluir &amp; Voltar à Comparação
-        </button>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- BOTTOM NAVIGATION BAR (FIXO)               -->
-<!-- ========================================== -->
-<nav class="fixed bottom-0 w-full max-w-[420px] bg-[#12151e]/95 backdrop-blur-md border-t border-[#1e2230] py-2 px-6 flex items-center justify-between z-30">
-<button class="flex flex-col items-center gap-1 active-nav-tab text-slate-400 hover:text-indigo-400 transition" id="nav-btn-comparador" onclick="switchView('comparador')">
-<div class="relative">
-<i class="fa-solid fa-table-columns text-base"></i>
-<span class="tab-indicator hidden absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
-</div>
-<span class="text-[10px] font-semibold tracking-tight">Comparador</span>
-</button>
-<button class="flex flex-col items-center -mt-5" onclick="openNewItemModal()">
-<div class="w-12 h-12 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 text-white flex items-center justify-center shadow-lg shadow-indigo-600/40 hover:scale-105 active:scale-95 transition">
-<i class="fa-solid fa-plus text-lg"></i>
-</div>
-<span class="text-[10px] font-semibold text-slate-300 mt-1">Adicionar</span>
-</button>
-<button class="flex flex-col items-center gap-1 text-slate-400 hover:text-indigo-400 transition" id="nav-btn-mercados" onclick="switchView('mercados')">
-<div class="relative">
-<i class="fa-solid fa-store text-base"></i>
-<span class="tab-indicator hidden absolute -bottom-1 left-1/2 -translate-x-1/2 w-1.5 h-1.5 bg-indigo-500 rounded-full"></span>
-</div>
-<span class="text-[10px] font-semibold tracking-tight">Mercados</span>
-</button>
-</nav>
-<!-- ========================================== -->
-<!-- MODAL: CADASTRAR / EDITAR PRODUTO          -->
-<!-- ========================================== -->
-<div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-end justify-center hidden" id="modal-product">
-<div class="w-full max-w-[420px] bg-[#131622] rounded-t-3xl border-t border-[#2a3045] max-h-[92vh] flex flex-col shadow-2xl animate-in slide-in-from-bottom duration-200">
-<!-- Modal Header -->
-<div class="p-4 border-b border-[#202538] flex items-center justify-between">
-<div class="flex items-center space-x-2">
-<button class="w-8 h-8 rounded-lg bg-[#1c2030] text-slate-400 hover:text-white flex items-center justify-center" onclick="closeProductModal()">
-<i class="fa-solid fa-xmark"></i>
-</button>
-<h2 class="font-bold text-sm text-white" id="modal-product-title">Novo Item</h2>
-</div>
-<button class="px-3.5 py-1.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-lg text-xs font-semibold shadow transition" onclick="submitProductForm()">
-            Salvar
-          </button>
-</div>
-<!-- Modal Form Scrollable Body -->
-<div class="p-4 overflow-y-auto space-y-4">
-<input id="form-product-id" type="hidden" value=""/>
-<!-- Section 1: Info Básica -->
-<div class="bg-[#181c2b] p-3.5 rounded-2xl border border-[#252b40] space-y-3">
-<p class="text-[11px] font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-1.5">
-<i class="fa-solid fa-tag"></i> Informações Principais
-            </p>
-<div>
-<label class="block text-xs font-semibold text-slate-300 mb-1">Nome do Produto *</label>
-<input class="w-full bg-[#10131d] border border-[#2b334a] focus:border-indigo-500 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none" id="form-product-name" placeholder="Ex: Papel Higiênico Folha Dupla, Café..." type="text"/>
-</div>
-<!-- Categoria Chips -->
-<div>
-<label class="block text-xs font-semibold text-slate-300 mb-1.5">Categoria</label>
-<div class="flex flex-wrap gap-1.5" id="form-category-container">
-<button class="form-cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-indigo-600 text-white border border-indigo-500" onclick="selectFormCategory('Higiene', this)" type="button">Higiene</button>
-<button class="form-cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-[#10131d] text-slate-400 border border-[#2b334a]" onclick="selectFormCategory('Alimentos', this)" type="button">Alimentos</button>
-<button class="form-cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-[#10131d] text-slate-400 border border-[#2b334a]" onclick="selectFormCategory('Limpeza', this)" type="button">Limpeza</button>
-<button class="form-cat-btn px-3 py-1 rounded-lg text-xs font-medium bg-[#10131d] text-slate-400 border border-[#2b334a]" onclick="selectFormCategory('Hortifruti', this)" type="button">Hortifruti</button>
-</div>
-</div>
-<!-- Quantidade e Unidade -->
-<div class="grid grid-cols-2 gap-3">
-<div>
-<label class="block text-xs font-semibold text-slate-300 mb-1">Quantidade</label>
-<div class="flex items-center bg-[#10131d] border border-[#2b334a] rounded-xl overflow-hidden">
-<button class="w-9 py-2 text-slate-400 hover:text-white bg-[#1a1f2f] flex items-center justify-center font-bold text-sm" onclick="adjustFormQuantity(-1)" type="button">-</button>
-<input class="w-full bg-transparent text-center text-xs font-bold text-white focus:outline-none" id="form-product-qty" min="1" type="number" value="1"/>
-<button class="w-9 py-2 text-slate-400 hover:text-white bg-[#1a1f2f] flex items-center justify-center font-bold text-sm" onclick="adjustFormQuantity(1)" type="button">+</button>
-</div>
-</div>
-<div>
-<label class="block text-xs font-semibold text-slate-300 mb-1">Unidade</label>
-<div class="grid grid-cols-4 gap-1" id="form-unit-container">
-<button class="form-unit-btn py-1.5 rounded-lg text-[11px] font-bold bg-indigo-600 text-white" onclick="selectFormUnit('UN', this)" type="button">UN</button>
-<button class="form-unit-btn py-1.5 rounded-lg text-[11px] font-bold bg-[#10131d] text-slate-400" onclick="selectFormUnit('Kg', this)" type="button">Kg</button>
-<button class="form-unit-btn py-1.5 rounded-lg text-[11px] font-bold bg-[#10131d] text-slate-400" onclick="selectFormUnit('g', this)" type="button">g</button>
-<button class="form-unit-btn py-1.5 rounded-lg text-[11px] font-bold bg-[#10131d] text-slate-400" onclick="selectFormUnit('L', this)" type="button">L</button>
-</div>
-</div>
-</div>
-<div>
-<label class="block text-xs font-semibold text-slate-300 mb-1">Observação / Embalagem (opcional)</label>
-<input class="w-full bg-[#10131d] border border-[#2b334a] focus:border-indigo-500 rounded-xl px-3 py-2 text-xs text-white placeholder-slate-500 focus:outline-none" id="form-product-obs" placeholder="Ex: c/ 24 fls, Pacote 500g, Garrafa pet" type="text"/>
-</div>
-</div>
-<!-- Section 2: Preços por Mercado -->
-<div class="bg-[#181c2b] p-3.5 rounded-2xl border border-[#252b40] space-y-3">
-<div class="flex items-center justify-between">
-<p class="text-[11px] font-bold text-emerald-400 uppercase tracking-wider flex items-center gap-1.5">
-<i class="fa-solid fa-coins"></i> Preços por Supermercado
-              </p>
-<span class="text-[10px] text-slate-400" id="form-prices-market-count">4 mercados</span>
-</div>
-<p class="text-[11px] text-slate-400 bg-[#121520] p-2.5 rounded-xl border border-[#22283a] flex items-center gap-2">
-<i class="fa-solid fa-circle-info text-emerald-400"></i>
-              O menor preço receberá a tag verde de destaque automaticamente.
-            </p>
-<!-- Dynamic Input Rows for each market -->
-<div class="space-y-2.5" id="form-market-prices-list">
-<!-- Rendered via JS -->
-</div>
-</div>
-<!-- Section 3: Modal Actions -->
-<div class="space-y-2 pt-1 pb-4">
-<button class="w-full py-3 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-2 shadow-lg shadow-indigo-600/30 transition active:scale-[0.99]" onclick="submitProductForm()">
-<i class="fa-solid fa-check"></i> Salvar Produto
-            </button>
-<button class="w-full py-2.5 bg-transparent hover:bg-[#1a1f2e] text-slate-400 text-xs font-medium rounded-xl transition" onclick="closeProductModal()">
-              Cancelar
-            </button>
-</div>
-</div>
-</div>
-</div>
-<!-- ========================================== -->
-<!-- MODAL: INFORMAÇÕES & AJUDA                 -->
-<!-- ========================================== -->
-<div class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden" id="modal-info">
-<div class="w-full max-w-sm bg-[#131622] rounded-3xl border border-[#2b3248] p-5 shadow-2xl space-y-4">
-<div class="flex items-center justify-between border-b border-[#202538] pb-3">
-<div class="flex items-center gap-2">
-<div class="w-8 h-8 rounded-lg bg-indigo-600/20 text-indigo-400 flex items-center justify-center">
-<i class="fa-solid fa-circle-question"></i>
-</div>
-<h3 class="font-bold text-sm text-white">Como Usar o App</h3>
-</div>
-<button class="text-slate-400 hover:text-white" onclick="toggleInfoModal()">
-<i class="fa-solid fa-xmark"></i>
-</button>
-</div>
-<div class="space-y-3 text-xs text-slate-300">
-<div class="flex items-start gap-2.5">
-<span class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">1</span>
-<p><strong class="text-white">Arraste para Reordenar:</strong> Segure os cards dos mercados ou os itens na tela de Mercados para mudar a ordem das colunas da lista de produtos.</p>
-</div>
-<div class="flex items-start gap-2.5">
-<span class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">2</span>
-<p><strong class="text-white">Destaque Verde:</strong> O menor valor de cada produto é destacado automaticamente na cor verde esmeralda com o resumo de economia.</p>
-</div>
-<div class="flex items-start gap-2.5">
-<span class="w-5 h-5 rounded-full bg-indigo-600 text-white flex items-center justify-center text-[10px] font-bold flex-shrink-0 mt-0.5">3</span>
-<p><strong class="text-white">Filtros &amp; Busca:</strong> Filtre por categoria (Higiene, Alimentos...) ou digite no campo de busca para encontrar rápido qualquer item.</p>
-</div>
-</div>
-<button class="w-full py-2.5 bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl text-xs font-semibold" onclick="toggleInfoModal()">
-          Entendi
-        </button>
-</div>
-</div><script>APP_STATE.markets = [{id:'garca',name:'Garça',address:'Av. Principal',color:'#10b981',active:true},{id:'atacadão',name:'Atacadão',address:'Rodovia SP-294',color:'#3b82f6',active:true},{id:'coop',name:'Coop',address:'Unidade Centro',color:'#10b981',active:true},{id:'tauste',name:'Tauste',address:'Unidade Norte',color:'#f59e0b',active:true}];APP_STATE.products = [{id:'p1',name:'Papel Higiênico H',category:'Higiene',qty:1,unit:'UN',obs:'c/24 fls',prices:{'garca':23.99,'atacadão':22.50,'coop':23.90,'tauste':24.10}},{id:'p2',name:'Listerine',category:'Higiene',qty:1,unit:'UN',obs:'',prices:{'garca':22.99,'atacadão':18.90,'coop':21.50,'tauste':19.80}},{id:'p3',name:'Asepxia',category:'Higiene',qty:1,unit:'UN',obs:'',prices:{'garca':11.50,'atacadão':10.99,'coop':12.00,'tauste':11.20}},{id:'p4',name:'Filtro Café',category:'Alimentos',qty:2,unit:'UN',obs:'Nº 103',prices:{'garca':4.29,'atacadão':3.99,'coop':4.10,'tauste':4.49}},{id:'p5',name:'Guardanapo',category:'Limpeza',qty:1,unit:'UN',obs:'200 folhas',prices:{'garca':7.99,'atacadão':8.10,'coop':8.20,'tauste':7.89}},{id:'p6',name:'Mamão',category:'Hortifruti',qty:1,unit:'Kg',obs:'Papaya',prices:{'garca':9.99,'atacadão':10.50,'coop':10.90,'tauste':9.49}},{id:'p7',name:'Maçã',category:'Hortifruti',qty:1,unit:'Kg',obs:'Gala',prices:{'garca':8.99,'atacadão':8.79,'coop':9.20,'tauste':8.90}}];function renderSummaryCards(){const container=document.getElementById('market-cards-scroll');if(!container)return;const stats=calculateMarketStats();const activeMarkets=APP_STATE.markets.filter(m=>m.active);container.innerHTML=activeMarkets.map((market,index)=>{const s=stats[market.id]||{total:0,bestPriceCount:0};const isLeader=s.bestPriceCount>0&&s.bestPriceCount===Math.max(...Object.values(stats).map(x=>x.bestPriceCount));return `<div draggable="true" data-market-id="${market.id}" data-index="${index}" class="market-summary-card flex-shrink-0 w-28 p-2.5 rounded-xl bg-[#181c2b] border border-[#272e42] relative cursor-grab active:cursor-grabbing hover:border-indigo-500/50 transition" ondragstart="onDragStartCard(event, ${index})" ondragover="onDragOverCard(event)" ondragleave="onDragLeaveCard(event)" ondrop="onDropCard(event, ${index})"><div class="flex items-center justify-between mb-1"><span class="text-xs font-semibold text-slate-200 truncate">${market.name}</span><span class="w-2 h-2 rounded-full" style="background-color:${market.color}"></span></div><div class="text-sm font-bold text-emerald-400">${s.total>0?formatMoney(s.total):'R$ 0,00'}</div><div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between"><span>${s.bestPriceCount} ${s.bestPriceCount===1?'menor':'menores'}</span>${isLeader?'<i class="fa-solid fa-star text-amber-400 text-[9px]"></i>':''}</div></div>`;}).join('');}function renderTableHeaders(){const container=document.getElementById('table-store-headers');if(!container)return;const activeMarkets=APP_STATE.markets.filter(m=>m.active);container.innerHTML=activeMarkets.map(m=>`<div class="flex-1 min-w-[76px] text-center px-1 truncate"><span class="inline-flex items-center justify-center gap-1 text-[11px] font-bold text-slate-300 truncate"><span class="w-1.5 h-1.5 rounded-full" style="background-color:${m.color}"></span>${m.name}</span></div>`).join('');}function renderProductList(){const container=document.getElementById('product-list-container');const emptyState=document.getElementById('empty-state');if(!container)return;const activeMarkets=APP_STATE.markets.filter(m=>m.active);let filtered=APP_STATE.products.filter(p=>{const matchesCategory=APP_STATE.selectedCategory==='todos'||p.category===APP_STATE.selectedCategory;const matchesSearch=!APP_STATE.searchQuery||p.name.toLowerCase().includes(APP_STATE.searchQuery.toLowerCase())||p.category.toLowerCase().includes(APP_STATE.searchQuery.toLowerCase())||(p.obs&&p.obs.toLowerCase().includes(APP_STATE.searchQuery.toLowerCase()));return matchesCategory&&matchesSearch;});if(filtered.length===0){container.innerHTML='';emptyState.classList.remove('hidden');return;}emptyState.classList.add('hidden');container.innerHTML=filtered.map(prod=>{let minPrice=Infinity;activeMarkets.forEach(m=>{const val=prod.prices[m.id];if(val&&val>0&&val<minPrice){minPrice=val;}});const priceColumnsHtml=activeMarkets.map(m=>{const val=prod.prices[m.id];const hasValue=val&&val>0;const isBest=hasValue&&val===minPrice;return `<div class="flex-1 min-w-[76px] text-center flex flex-col items-center justify-center px-1">${hasValue?`<span class="${isBest?'bg-emerald-500 text-slate-950 font-bold px-1.5 py-0.5 rounded-lg shadow-sm':'text-slate-300 font-medium'} text-xs inline-block truncate w-full">${formatMoney(val)}</span>${prod.obs?`<span class="text-[9px] text-slate-500 mt-0.5 truncate max-w-[65px]">${prod.obs}</span>`:''}`:`<span class="text-slate-600 text-xs">-</span>`}</div>`;}).join('');return `<div class="product-row bg-[#151824] hover:bg-[#1a1e2d] border border-[#222738] rounded-xl p-2.5 flex items-center justify-between transition-all"><div class="w-44 flex-shrink-0 flex items-center space-x-2 truncate pr-2"><input type="checkbox" class="w-3.5 h-3.5 rounded bg-[#1f2434] border-[#30384d] text-indigo-600 focus:ring-0 cursor-pointer"><div class="truncate"><h4 class="text-xs font-bold text-white truncate">${prod.name}</h4><p class="text-[10px] text-slate-400 truncate">${prod.qty} • ${prod.unit}${prod.category?` • ${prod.category}`:''}</p></div></div><div class="flex-1 flex items-center gap-2">${priceColumnsHtml}</div><div class="w-14 flex-shrink-0 flex items-center justify-end space-x-1 pl-1 text-slate-400"><button onclick="editProduct('${prod.id}')" title="Editar" class="w-6 h-6 rounded-lg hover:bg-[#252b3d] hover:text-slate-200 flex items-center justify-center transition"><i class="fa-solid fa-pen text-[9px]"></i></button><button onclick="deleteProduct('${prod.id}')" title="Excluir" class="w-6 h-6 rounded-lg hover:bg-rose-950/40 hover:text-rose-400 flex items-center justify-center transition"><i class="fa-solid fa-trash-can text-[9px]"></i></button></div></div>`;}).join('');}renderApp();</script>
-</div>
-<!-- APPLICATION LOGIC (VANILLA JS COMPLETO & INTERATIVO) -->
-<script>
-    // --- ESTADO PRINCIPAL DA APLICAÇÃO ---
-    const APP_STATE = {
-      activeView: 'comparador', // 'comparador' | 'mercados'
-      selectedCategory: 'todos',
-      searchQuery: '',
-      formSelectedCategory: 'Higiene',
-      formSelectedUnit: 'UN',
-      selectedMarketColor: '#10b981',
-
-      // Supermercados com ordem customizável (Drag and Drop)
-      markets: [
-        {
-          id: 'garca',
-          name: 'Garça',
-          address: 'Av. Principal',
-          color: '#10b981',
-          active: true
-        },
-        {
-          id: 'atacadão',
-          name: 'Atacadão',
-          address: 'Rodovia SP-294',
-          color: '#3b82f6',
-          active: true
-        },
-        {
-          id: 'coop',
-          name: 'Coop',
-          address: 'Unidade Centro',
-          color: '#10b981',
-          active: true
-        },
-        {
-          id: 'tauste',
-          name: 'Tauste',
-          address: 'Unidade Guaianases',
-          color: '#f59e0b',
-          active: true
-        }
-      ],
-
-      // Produtos com preços por mercado
-      products: [
-        {
-          id: 'p1',
-          name: 'Papel Higiênico H',
-          category: 'Higiene',
-          qty: 1,
-          unit: 'UN',
-          obs: 'c/24 fls',
-          prices: {
-            'garca': 23.99,
-            'atacadão': 22.50,
-            'coop': 23.90,
-            'tauste': 0
-          }
-        },
-        {
-          id: 'p2',
-          name: 'Listerine',
-          category: 'Higiene',
-          qty: 1,
-          unit: 'UN',
-          obs: '',
-          prices: {
-            'garca': 22.99,
-            'atacadão': 18.90,
-            'coop': 0,
-            'tauste': 0
-          }
-        },
-        {
-          id: 'p3',
-          name: 'Asepxia',
-          category: 'Higiene',
-          qty: 1,
-          unit: 'UN',
-          obs: '',
-          prices: {
-            'garca': 0,
-            'atacadão': 10.99,
-            'coop': 0,
-            'tauste': 0
-          }
-        },
-        {
-          id: 'p4',
-          name: 'Filtro Café',
-          category: 'Alimentos',
-          qty: 2,
-          unit: 'UN',
-          obs: 'Nº 103',
-          prices: {
-            'garca': 4.29,
-            'atacadão': 3.99,
-            'coop': 4.10,
-            'tauste': 0
-          }
-        },
-        {
-          id: 'p5',
-          name: 'Guardanapo',
-          category: 'Limpeza',
-          qty: 1,
-          unit: 'UN',
-          obs: '200 folhas',
-          prices: {
-            'garca': 7.99,
-            'atacadão': 8.10,
-            'coop': 8.20,
-            'tauste': 0
-          }
-        },
-        {
-          id: 'p6',
-          name: 'Mamão',
-          category: 'Hortifruti',
-          qty: 1,
-          unit: 'Kg',
-          obs: 'Papaya',
-          prices: {
-            'garca': 9.99,
-            'atacadão': 10.50,
-            'coop': 10.90,
-            'tauste': 0
-          }
-        },
-        {
-          id: 'p7',
-          name: 'Maçã',
-          category: 'Hortifruti',
-          qty: 1,
-          unit: 'Kg',
-          obs: 'Gala',
-          prices: {
-            'garca': 8.99,
-            'atacadão': 8.79,
-            'coop': 9.20,
-            'tauste': 0
-          }
-        }
-      ]
-    };
-
-    // Variáveis auxiliares para Drag and Drop
-    let draggedMarketIndex = null;
-    let dragSourceType = null; // 'card' ou 'list'
-
-    // Formatação de moeda BRL
-    function formatMoney(value) {
-      if (!value || isNaN(value) || value <= 0) return '-';
-      return `R$ ${value.toFixed(2).replace('.', ',')}`;
-    }
-
-    // --- CÁLCULO DE ESTATÍSTICAS POR MERCADO ---
-    function calculateMarketStats() {
-      const stats = {};
-      APP_STATE.markets.forEach(m => {
-        stats[m.id] = {
-          total: 0,
-          bestPriceCount: 0,
-          itemsCount: 0
-        };
-      });
-
-      APP_STATE.products.forEach(p => {
-        let lowestPrice = Infinity;
-        let lowestMarketId = null;
-
-        APP_STATE.markets.forEach(m => {
-          const val = p.prices[m.id];
-          if (val && val > 0) {
-            stats[m.id].total += (val * (p.qty || 1));
-            stats[m.id].itemsCount++;
-            if (val < lowestPrice) {
-              lowestPrice = val;
-              lowestMarketId = m.id;
-            }
-          }
-        });
-
-        if (lowestMarketId && lowestPrice < Infinity) {
-          stats[lowestMarketId].bestPriceCount++;
-        }
-      });
-
-      return stats;
-    }
-
-    // --- RENDERIZAÇÃO DA INTERFACE ---
-    function renderApp() {
-      renderSummaryCards();
-      renderTableHeaders();
-      renderProductList();
-      renderMarketsManagementList();
-      updateBadgesAndCounters();
-    }
-
-    // 1. Renderiza Cards de Resumo no topo da tela principal (com Drag & Drop)
-    function renderSummaryCards() {
-      const container = document.getElementById('market-cards-scroll');
-      if (!container) return;
-
-      const stats = calculateMarketStats();
-      const activeMarkets = APP_STATE.markets.filter(m => m.active);
-
-      container.innerHTML = activeMarkets.map((market, index) => {
-        const s = stats[market.id] || { total: 0, bestPriceCount: 0 };
-        const isLeader = s.bestPriceCount > 0 && s.bestPriceCount === Math.max(...Object.values(stats).map(x => x.bestPriceCount));
-
-        return `
-          <div 
-            draggable="true"
-            data-market-id="${market.id}"
-            data-index="${index}"
-            class="market-summary-card flex-shrink-0 w-32 p-3 rounded-2xl bg-[#181c2b] border border-[#272e42] relative cursor-grab active:cursor-grabbing transition-all hover:border-indigo-500/50 shadow-sm"
-            ondragstart="onDragStartCard(event, ${index})"
-            ondragover="onDragOverCard(event)"
-            ondragleave="onDragLeaveCard(event)"
-            ondrop="onDropCard(event, ${index})"
-          >
-            <div class="flex items-center justify-between mb-1.5">
-              <span class="text-xs font-bold text-slate-200 truncate flex items-center gap-1">
-                <i class="fa-solid fa-grip-vertical text-slate-500 text-[10px]"></i>
-                ${market.name}
-              </span>
-              <span class="w-2 h-2 rounded-full" style="background-color: ${market.color}"></span>
-            </div>
-            <div class="text-sm font-extrabold text-emerald-400">
-              ${s.total > 0 ? formatMoney(s.total) : 'R$ 0,00'}
-            </div>
-            <div class="text-[10px] text-slate-400 mt-1 flex items-center justify-between">
-              <span>${s.bestPriceCount} ${s.bestPriceCount === 1 ? 'verde' : 'verdes'}</span>
-              ${isLeader ? '<i class="fa-solid fa-star text-amber-400 text-[9px]" title="Líder de economia"></i>' : ''}
-            </div>
+          <div>
+            <h1 class="text-base font-bold leading-tight tracking-tight">Mercado Compare</h1>
           </div>
-        `;
-      }).join('');
-    }
-
-    // 2. Renderiza cabeçalhos das colunas da tabela de comparação
-    function renderTableHeaders() {
-      const container = document.getElementById('table-store-headers');
-      if (!container) return;
-
-      // Mostra as duas primeiras lojas ativas na grade mobile
-      const activeMarkets = APP_STATE.markets.filter(m => m.active);
-      const displayMarkets = activeMarkets.slice(0, 2);
-
-      container.innerHTML = displayMarkets.map(m => `
-        <div class="w-1/2 text-right pr-2">
-          <span class="inline-flex items-center gap-1 text-[10px] font-bold text-slate-300">
-            <i class="fa-solid fa-grip-lines-vertical text-slate-600 text-[9px]"></i>
-            ${m.name}
-          </span>
         </div>
-      `).join('');
-    }
 
-    // 3. Renderiza lista de produtos
-    function renderProductList() {
-      const container = document.getElementById('product-list-container');
-      const emptyState = document.getElementById('empty-state');
-      if (!container) return;
+        <div class="flex items-center space-x-1.5">
+          <button id="btn-install" onclick="triggerInstall()" title="Instalar Aplicativo" class="p-2.5 border border-[var(--border-color)] bg-[var(--bg-input)] hover:opacity-80 rounded-xl transition-all shadow-sm flex items-center justify-center text-emerald-500">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
+          </button>
+          <button id="themeToggleBtn" title="Alternar Tema" class="p-2.5 border border-[var(--border-color)] bg-[var(--bg-input)] hover:opacity-80 rounded-xl transition-all shadow-sm flex items-center justify-center">
+            <svg id="sunIcon" class="w-4 h-4 text-amber-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+            <svg id="moonIcon" class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.03 9.03 0 0012 21a9.03 9.03 0 008.354-5.646z"></path></svg>
+          </button>
+          <button id="backupModalBtn" title="Backup e Restaurar" class="p-2.5 border border-[var(--border-color)] bg-[var(--bg-input)] hover:opacity-80 rounded-xl transition-all shadow-sm flex items-center justify-center text-[var(--text-main)]">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12C21 13.66 16.97 15 12 15C7.03 15 3 13.66 3 12"></path><path d="M3 5V19C3 20.66 7.03 22 12 22C16.97 22 21 20.66 21 19V5"></path></svg>
+          </button>
+        </div>
+      </div>
 
-      const activeMarkets = APP_STATE.markets.filter(m => m.active);
-      const displayMarkets = activeMarkets.slice(0, 2); // 2 colunas visíveis em celular
+      <!-- Linha 2: Pesquisa -->
+      <div class="relative w-full">
+        <input type="text" id="searchInput" placeholder="Pesquisar..." class="w-full pl-9 pr-3 py-2 text-xs placeholder-zinc-500 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium">
+        <svg class="w-4 h-4 opacity-40 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
+      </div>
 
-      // Filtros
-      let filtered = APP_STATE.products.filter(p => {
-        const matchesCategory = APP_STATE.selectedCategory === 'todos' || p.category === APP_STATE.selectedCategory;
-        const matchesSearch = !APP_STATE.searchQuery || 
-          p.name.toLowerCase().includes(APP_STATE.searchQuery.toLowerCase()) ||
-          p.category.toLowerCase().includes(APP_STATE.searchQuery.toLowerCase()) ||
-          (p.obs && p.obs.toLowerCase().includes(APP_STATE.searchQuery.toLowerCase()));
-        return matchesCategory && matchesSearch;
-      });
+      <!-- Linha 3: Botões Principais -->
+      <div class="flex items-center gap-2 pt-0.5">
+        <button id="addItemBtn" class="flex-1 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-2 px-3 rounded-2xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-md transition-all active:scale-95">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
+          <span>Novo Item</span>
+        </button>
+        <button id="manageStoresBtn" class="flex-1 bg-[var(--bg-input)] hover:opacity-80 py-2 px-3 rounded-2xl text-xs font-bold flex items-center justify-center space-x-1.5 border border-[var(--border-color)] shadow-sm transition-all active:scale-95">
+          <svg class="w-4 h-4 opacity-70" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5m0 0h4m-4 0v-4m0 4h4m-4-4l-4 4m4-4l4 4"></path></svg>
+          <span>Mercados</span>
+        </button>
+      </div>
 
-      if (filtered.length === 0) {
-        container.innerHTML = '';
-        emptyState.classList.remove('hidden');
-        return;
-      }
+    </div>
 
-      emptyState.classList.add('hidden');
+    <!-- Pílulas de Categorias -->
+    <div class="overflow-x-auto scrollbar-thin py-1">
+      <div id="categoryPills" class="flex items-center space-x-2 min-w-max"></div>
+    </div>
 
-      container.innerHTML = filtered.map(prod => {
-        // Encontra o menor preço entre todos os mercados ativos com valor > 0
-        let minPrice = Infinity;
-        activeMarkets.forEach(m => {
-          const val = prod.prices[m.id];
-          if (val && val > 0 && val < minPrice) {
-            minPrice = val;
-          }
-        });
+    <!-- Cards de Resumo Superior por Mercado -->
+    <div class="app-card px-2 py-2.5 rounded-2xl border shadow-lg overflow-x-auto scrollbar-thin">
+      <div id="storeSummaries" class="flex items-center divide-x divide-[var(--border-color)] w-full min-w-max"></div>
+    </div>
 
-        // Colunas de preço para as duas lojas prioritárias
-        const priceColumnsHtml = displayMarkets.map(m => {
-          const val = prod.prices[m.id];
-          const hasValue = val && val > 0;
-          const isBest = hasValue && val === minPrice;
+    <!-- Lista de Itens -->
+    <div class="space-y-2.5 pb-4" id="cardsListContainer"></div>
 
-          return `
-            <div class="w-1/2 text-right flex flex-col items-end justify-center">
-              ${hasValue ? `
-                <span class="${isBest ? 'bg-emerald-500 text-slate-950 font-bold px-2 py-0.5 rounded-lg shadow-sm' : 'text-slate-300 font-semibold'} text-xs inline-block">
-                  ${formatMoney(val)}
-                </span>
-                ${prod.obs ? `<span class="text-[9px] text-slate-500 mt-0.5 truncate max-w-[65px]">${prod.obs}</span>` : ''}
-              ` : `
-                <span class="text-slate-600 text-xs">-</span>
-              `}
-            </div>
-          `;
-        }).join('');
+  </main>
 
-        return `
-          <div class="product-row bg-[#151824] hover:bg-[#1a1e2d] border border-[#222738] rounded-2xl p-3 flex items-center justify-between transition-all">
-            <!-- Left: Checkbox & Name -->
-            <div class="w-5/12 flex items-center space-x-2.5">
-              <input type="checkbox" class="w-4 h-4 rounded bg-[#1f2434] border-[#30384d] text-indigo-600 focus:ring-0 rounded-md cursor-pointer">
-              <div class="truncate">
-                <h4 class="text-xs font-bold text-white truncate">${prod.name}</h4>
-                <p class="text-[10px] text-slate-400 mt-0.5">${prod.qty} • ${prod.unit} ${prod.category ? `• ${prod.category}` : ''}</p>
-              </div>
-            </div>
+  <!-- Modais -->
+  <div id="backupModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+    <div class="app-card rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl border border-[var(--border-color)] relative">
+      <div class="flex items-center justify-between">
+        <h3 class="text-sm font-bold">Backup e Restaurar</h3>
+        <button id="closeBackupModal" class="opacity-60 hover:opacity-100 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg></button>
+      </div>
+      <p class="text-[11px] opacity-70 leading-relaxed">Exporte seus dados em um arquivo JSON para salvar em seu computador/celular ou importar em outro dispositivo.</p>
+      <div class="space-y-2 pt-1">
+        <button id="exportJsonBtn" class="w-full py-2.5 px-3 bg-[var(--bg-input)] hover:opacity-80 border border-[var(--border-color)] rounded-2xl text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all"><svg class="w-4 h-4 text-sky-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg><span>Exportar Dados (JSON)</span></button>
+        <button id="triggerImportBtn" class="w-full py-2.5 px-3 bg-[var(--bg-input)] hover:opacity-80 border border-[var(--border-color)] rounded-2xl text-xs font-bold flex items-center justify-center space-x-2 shadow-sm transition-all cursor-pointer"><svg class="w-4 h-4 text-emerald-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg><span>Importar Arquivo JSON</span></button>
+        <input type="file" id="importJsonInput" class="hidden">
+      </div>
+      <div class="pt-2 border-t border-[var(--border-color)] text-center">
+        <button id="resetDataBtn" class="text-rose-500 hover:opacity-80 text-[11px] font-bold transition-colors">Resetar para Dados Iniciais</button>
+      </div>
+    </div>
+  </div>
 
-            <!-- Middle: Price comparison columns -->
-            <div class="w-5/12 flex items-center justify-end gap-1 px-1">
-              ${priceColumnsHtml}
-            </div>
-
-            <!-- Right: Actions (Edit & Delete) -->
-            <div class="w-2/12 flex items-center justify-end space-x-1.5 pl-1 text-slate-400">
-              <button onclick="editProduct('${prod.id}')" title="Editar" class="w-7 h-7 rounded-lg hover:bg-[#252b3d] hover:text-slate-200 flex items-center justify-center transition">
-                <i class="fa-solid fa-pen text-[10px]"></i>
-              </button>
-              <button onclick="deleteProduct('${prod.id}')" title="Excluir" class="w-7 h-7 rounded-lg hover:bg-rose-950/40 hover:text-rose-400 flex items-center justify-center transition">
-                <i class="fa-solid fa-trash-can text-[10px]"></i>
-              </button>
-            </div>
+  <div id="itemModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+    <div class="app-card rounded-3xl max-w-md w-full p-4 space-y-3 shadow-2xl border border-[var(--border-color)] max-h-[90vh] overflow-y-auto scrollbar-thin">
+      <h3 id="modalTitle" class="text-sm font-bold">Adicionar Item</h3>
+      <form id="itemForm" class="space-y-3">
+        <input type="hidden" id="itemId">
+        <div class="grid grid-cols-4 gap-2">
+          <div class="col-span-2">
+            <label class="block text-[11px] font-semibold opacity-60 mb-1">Nome do Item</label>
+            <input type="text" id="itemName" required class="w-full px-3 py-2 text-xs border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500">
           </div>
-        `;
-      }).join('');
-    }
-
-    // 4. Renderiza lista gerenciável de mercados com alça de arraste (Drag & Drop)
-    function renderMarketsManagementList() {
-      const container = document.getElementById('markets-drag-list');
-      if (!container) return;
-
-      const stats = calculateMarketStats();
-
-      container.innerHTML = APP_STATE.markets.map((m, index) => {
-        const s = stats[m.id] || { total: 0, bestPriceCount: 0, itemsCount: 0 };
-        const isLeader = s.bestPriceCount > 0 && s.bestPriceCount === Math.max(...Object.values(stats).map(x => x.bestPriceCount));
-
-        return `
-          <div 
-            draggable="true"
-            data-market-id="${m.id}"
-            data-index="${index}"
-            class="market-item-row bg-[#161a27] border ${m.active ? 'border-[#262c3e]' : 'border-[#202434] opacity-60'} rounded-2xl p-3 flex items-center justify-between cursor-grab active:cursor-grabbing hover:border-indigo-500/40 transition-all"
-            ondragstart="onDragStartList(event, ${index})"
-            ondragover="onDragOverList(event)"
-            ondragleave="onDragLeaveList(event)"
-            ondrop="onDropList(event, ${index})"
-          >
-            <!-- Handle & Info -->
-            <div class="flex items-center space-x-3">
-              <div class="w-6 text-slate-500 hover:text-slate-300 flex items-center justify-center">
-                <i class="fa-solid fa-grip-vertical text-sm"></i>
-              </div>
-              <div class="w-7 h-7 rounded-lg bg-[#202538] text-slate-300 font-bold text-xs flex items-center justify-center border border-[#2b334a]">
-                0${index + 1}
-              </div>
-              <div>
-                <div class="flex items-center gap-2">
-                  <h4 class="text-xs font-bold text-white">${m.name}</h4>
-                  ${m.active ? `
-                    <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-emerald-950 text-emerald-400 border border-emerald-800 font-medium">
-                      ● Em Comparação
-                    </span>
-                  ` : `
-                    <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-slate-800 text-slate-400 font-medium">
-                      Oculto
-                    </span>
-                  `}
-                  ${isLeader ? `
-                    <span class="text-[9px] px-1.5 py-0.2 rounded-full bg-amber-950 text-amber-300 border border-amber-800 font-medium flex items-center gap-1">
-                      <i class="fa-solid fa-star text-[8px]"></i> Líder
-                    </span>
-                  ` : ''}
-                </div>
-                <p class="text-[10px] text-slate-400 mt-0.5">
-                  ${m.address || 'Sem endereço'} • ${s.itemsCount} itens cotados
-                </p>
-              </div>
-            </div>
-
-            <!-- Toggle & Delete -->
-            <div class="flex items-center space-x-2">
-              <button onclick="toggleMarketStatus('${m.id}')" title="${m.active ? 'Desativar da grade' : 'Ativar na grade'}" class="w-8 h-8 rounded-xl bg-[#202538] hover:bg-[#282f45] text-slate-300 flex items-center justify-center text-xs transition">
-                <i class="fa-solid ${m.active ? 'fa-eye text-emerald-400' : 'fa-eye-slash text-slate-500'}"></i>
-              </button>
-              <button onclick="deleteMarket('${m.id}')" title="Excluir Mercado" class="w-8 h-8 rounded-xl bg-[#202538] hover:bg-rose-950/40 text-slate-400 hover:text-rose-400 flex items-center justify-center text-xs transition">
-                <i class="fa-solid fa-trash-can"></i>
-              </button>
-            </div>
+          <div>
+            <label class="block text-[11px] font-semibold opacity-60 mb-1">Qtd</label>
+            <input type="number" id="itemQuantity" min="1" value="1" required class="w-full px-2.5 py-2 text-xs border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 font-bold text-center">
           </div>
-        `;
-      }).join('');
-    }
-
-    // 5. Atualiza Badges, Contadores e Estatísticas
-    function updateBadgesAndCounters() {
-      const activeCount = APP_STATE.markets.filter(m => m.active).length;
-      const totalCount = APP_STATE.markets.length;
-      const stats = calculateMarketStats();
-
-      // Encontra líder
-      let leaderName = 'Nenhum';
-      let maxBest = -1;
-      APP_STATE.markets.forEach(m => {
-        if (stats[m.id] && stats[m.id].bestPriceCount > maxBest && stats[m.id].bestPriceCount > 0) {
-          maxBest = stats[m.id].bestPriceCount;
-          leaderName = m.name;
-        }
-      });
-
-      // Headers & badges
-      const headerMarketCount = document.getElementById('header-market-count');
-      if (headerMarketCount) headerMarketCount.innerText = `${activeCount} Mercados Ativos`;
-
-      const badgeActive = document.getElementById('badge-active-markets');
-      if (badgeActive) badgeActive.innerText = `${activeCount} Ativos`;
-
-      const statTotal = document.getElementById('stat-total-markets');
-      if (statTotal) statTotal.innerText = `${totalCount} Lojas`;
-
-      const statActive = document.getElementById('stat-active-markets');
-      if (statActive) statActive.innerText = `${activeCount} em foco`;
-
-      const statLeader = document.getElementById('stat-leader-market');
-      if (statLeader) statLeader.innerText = leaderName;
-
-      const listCount = document.getElementById('market-list-count');
-      if (listCount) listCount.innerText = totalCount;
-
-      const countAll = document.getElementById('count-all');
-      if (countAll) countAll.innerText = APP_STATE.products.length;
-    }
-
-    // --- LÓGICA DE DRAG AND DROP (ARRASTAR E SOLTAR) ---
-    // A) Drag nos Cards Superiores
-    function onDragStartCard(e, index) {
-      draggedMarketIndex = index;
-      dragSourceType = 'card';
-      e.dataTransfer.effectAllowed = 'move';
-      e.currentTarget.classList.add('draggable-source');
-    }
-
-    function onDragOverCard(e) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      e.currentTarget.classList.add('drag-over');
-    }
-
-    function onDragLeaveCard(e) {
-      e.currentTarget.classList.remove('drag-over');
-    }
-
-    function onDropCard(e, targetIndex) {
-      e.preventDefault();
-      e.currentTarget.classList.remove('drag-over');
-
-      if (draggedMarketIndex === null || draggedMarketIndex === targetIndex) return;
-
-      // Reordena no array APP_STATE.markets
-      const movedItem = APP_STATE.markets.splice(draggedMarketIndex, 1)[0];
-      APP_STATE.markets.splice(targetIndex, 0, movedItem);
-
-      draggedMarketIndex = null;
-      renderApp();
-    }
-
-    // B) Drag na Lista da Tela de Gerenciamento de Mercados
-    function onDragStartList(e, index) {
-      draggedMarketIndex = index;
-      dragSourceType = 'list';
-      e.dataTransfer.effectAllowed = 'move';
-      e.currentTarget.classList.add('draggable-source');
-    }
-
-    function onDragOverList(e) {
-      e.preventDefault();
-      e.dataTransfer.dropEffect = 'move';
-      e.currentTarget.classList.add('drag-over');
-    }
-
-    function onDragLeaveList(e) {
-      e.currentTarget.classList.remove('drag-over');
-    }
-
-    function onDropList(e, targetIndex) {
-      e.preventDefault();
-      e.currentTarget.classList.remove('drag-over');
-
-      if (draggedMarketIndex === null || draggedMarketIndex === targetIndex) return;
-
-      const movedItem = APP_STATE.markets.splice(draggedMarketIndex, 1)[0];
-      APP_STATE.markets.splice(targetIndex, 0, movedItem);
-
-      draggedMarketIndex = null;
-      renderApp();
-    }
-
-    // Limpa classes ao terminar drag
-    document.addEventListener('dragend', () => {
-      document.querySelectorAll('.draggable-source').forEach(el => el.classList.remove('draggable-source'));
-      document.querySelectorAll('.drag-over').forEach(el => el.classList.remove('drag-over'));
-      draggedMarketIndex = null;
-    });
-
-    // --- NAVEGAÇÃO ENTRE TELAS ---
-    function switchView(viewName) {
-      APP_STATE.activeView = viewName;
-      const viewComp = document.getElementById('view-comparador');
-      const viewMerc = document.getElementById('view-mercados');
-      const navComp = document.getElementById('nav-btn-comparador');
-      const navMerc = document.getElementById('nav-btn-mercados');
-
-      if (viewName === 'comparador') {
-        viewComp.classList.remove('hidden');
-        viewMerc.classList.add('hidden');
-        navComp.classList.add('active-nav-tab');
-        navMerc.classList.remove('active-nav-tab');
-      } else {
-        viewComp.classList.add('hidden');
-        viewMerc.classList.remove('hidden');
-        navComp.classList.remove('active-nav-tab');
-        navMerc.classList.add('active-nav-tab');
-      }
-      window.scrollTo(0, 0);
-      renderApp();
-    }
-
-    // --- FILTROS DE CATEGORIA & BUSCA ---
-    function filterCategory(cat) {
-      APP_STATE.selectedCategory = cat;
-      document.querySelectorAll('.category-pill').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-500');
-        btn.classList.add('bg-[#181b26]', 'text-slate-400', 'border-[#262b3c]');
-      });
-
-      const activeBtn = document.getElementById(`pill-cat-${cat}`);
-      if (activeBtn) {
-        activeBtn.classList.remove('bg-[#181b26]', 'text-slate-400', 'border-[#262b3c]');
-        activeBtn.classList.add('bg-indigo-600', 'text-white', 'border-indigo-500');
-      }
-      renderProductList();
-    }
-
-    function handleSearch(val) {
-      APP_STATE.searchQuery = val.trim();
-      const clearBtn = document.getElementById('clear-search-btn');
-      if (APP_STATE.searchQuery.length > 0) {
-        clearBtn.classList.remove('hidden');
-      } else {
-        clearBtn.classList.add('hidden');
-      }
-      renderProductList();
-    }
-
-    function clearSearch() {
-      const input = document.getElementById('search-input');
-      input.value = '';
-      handleSearch('');
-    }
-
-    // --- MODAL DE NOVO / EDITAR PRODUTO ---
-    function openNewItemModal(editId = null) {
-      const modal = document.getElementById('modal-product');
-      const modalTitle = document.getElementById('modal-product-title');
-      const formId = document.getElementById('form-product-id');
-      const formName = document.getElementById('form-product-name');
-      const formQty = document.getElementById('form-product-qty');
-      const formObs = document.getElementById('form-product-obs');
-
-      // Preenche lista de mercados no modal
-      const pricesContainer = document.getElementById('form-market-prices-list');
-      const activeMarkets = APP_STATE.markets;
-
-      document.getElementById('form-prices-market-count').innerText = `${activeMarkets.length} mercados`;
-
-      if (editId) {
-        const prod = APP_STATE.products.find(p => p.id === editId);
-        if (!prod) return;
-        modalTitle.innerText = 'Editar Item';
-        formId.value = prod.id;
-        formName.value = prod.name;
-        formQty.value = prod.qty || 1;
-        formObs.value = prod.obs || '';
-        selectFormCategory(prod.category || 'Higiene');
-        selectFormUnit(prod.unit || 'UN');
-
-        pricesContainer.innerHTML = activeMarkets.map(m => {
-          const val = prod.prices[m.id] || '';
-          return `
-            <div class="flex items-center justify-between p-2 rounded-xl bg-[#11141e] border border-[#23293b]">
-              <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${m.color}"></span>
-                <span class="text-xs font-semibold text-white">${m.name}</span>
-              </div>
-              <div class="flex items-center gap-1.5">
-                <span class="text-xs font-bold text-slate-400">R$</span>
-                <input 
-                  type="number" 
-                  step="0.01" 
-                  data-market-price-id="${m.id}" 
-                  value="${val > 0 ? val : ''}" 
-                  placeholder="0,00" 
-                  class="w-24 bg-[#1a1f2e] border border-[#2d354b] rounded-lg px-2.5 py-1 text-xs text-right font-bold text-emerald-400 focus:outline-none focus:border-indigo-500"
-                />
-              </div>
-            </div>
-          `;
-        }).join('');
-      } else {
-        modalTitle.innerText = 'Novo Item';
-        formId.value = '';
-        formName.value = '';
-        formQty.value = '1';
-        formObs.value = '';
-        selectFormCategory('Higiene');
-        selectFormUnit('UN');
-
-        pricesContainer.innerHTML = activeMarkets.map(m => `
-          <div class="flex items-center justify-between p-2 rounded-xl bg-[#11141e] border border-[#23293b]">
-            <div class="flex items-center gap-2">
-              <span class="w-2.5 h-2.5 rounded-full" style="background-color: ${m.color}"></span>
-              <span class="text-xs font-semibold text-white">${m.name}</span>
-            </div>
-            <div class="flex items-center gap-1.5">
-              <span class="text-xs font-bold text-slate-400">R$</span>
-              <input 
-                type="number" 
-                step="0.01" 
-                data-market-price-id="${m.id}" 
-                value="" 
-                placeholder="0,00" 
-                class="w-24 bg-[#1a1f2e] border border-[#2d354b] rounded-lg px-2.5 py-1 text-xs text-right font-bold text-emerald-400 focus:outline-none focus:border-indigo-500"
-              />
-            </div>
+          <div>
+            <label class="block text-[11px] font-semibold opacity-60 mb-1">Medida</label>
+            <select id="itemUnit" class="w-full px-2 py-2 text-xs border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium">
+              <option value="UN">UN</option><option value="Kg">Kg</option><option value="L">L</option><option value="g">g</option><option value="ml">ml</option><option value="Pct">Pct</option><option value="Cx">Cx</option>
+            </select>
           </div>
-        `).join('');
-      }
+        </div>
+        <div>
+          <label class="block text-[11px] font-semibold opacity-60 mb-1">Categoria</label>
+          <select id="itemCategory" class="w-full px-3 py-2 text-xs border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium">
+            <option value="Higiene">Higiene</option>
+            <option value="Alimentos">Alimentos</option>
+            <option value="Limpeza">Limpeza</option>
+            <option value="Outros">Outros</option>
+          </select>
+        </div>
+        <div id="priceInputs" class="space-y-2 pt-1">
+          <label class="block text-[11px] font-semibold opacity-60">Preço Unitário e Observações por Mercado</label>
+        </div>
+        <div class="flex justify-end space-x-2 pt-2">
+          <button type="button" id="closeItemModal" class="px-4 py-2 text-xs font-medium opacity-70 hover:opacity-100 rounded-xl transition-colors">Cancelar</button>
+          <button type="submit" class="px-4 py-2 text-xs bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold shadow-md transition-colors">Salvar</button>
+        </div>
+      </form>
+    </div>
+  </div>
 
-      modal.classList.remove('hidden');
-    }
+  <div id="storeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
+    <div class="app-card rounded-3xl max-w-sm w-full p-4 space-y-3.5 shadow-2xl border border-[var(--border-color)]">
+      <h3 class="text-sm font-bold">Gerenciar Mercados</h3>
+      <div id="storeList" class="space-y-1.5 max-h-48 overflow-y-auto"></div>
+      <div class="flex gap-2 pt-1">
+        <input type="text" id="newStoreName" placeholder="Novo Mercado..." class="flex-1 px-3 py-2 text-xs border border-[var(--border-color)] rounded-xl focus:outline-none focus:ring-2 focus:ring-orange-500">
+        <button id="addStoreBtn" class="px-3.5 py-2 text-xs bg-orange-500 hover:bg-orange-600 text-white rounded-xl font-bold transition-colors">Adicionar</button>
+      </div>
+      <div class="flex justify-end pt-2">
+        <button id="closeStoreModal" class="px-4 py-2 text-xs font-medium opacity-70 hover:opacity-100 rounded-xl transition-colors">Fechar</button>
+      </div>
+    </div>
+  </div>
 
-    function closeProductModal() {
-      document.getElementById('modal-product').classList.add('hidden');
-    }
-
-    function adjustFormQuantity(delta) {
-      const input = document.getElementById('form-product-qty');
-      let val = parseInt(input.value) || 1;
-      val = Math.max(1, val + delta);
-      input.value = val;
-    }
-
-    function selectFormCategory(cat, el) {
-      APP_STATE.formSelectedCategory = cat;
-      document.querySelectorAll('.form-cat-btn').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white', 'border-indigo-500');
-        btn.classList.add('bg-[#10131d]', 'text-slate-400', 'border-[#2b334a]');
-      });
-      if (el) {
-        el.classList.remove('bg-[#10131d]', 'text-slate-400', 'border-[#2b334a]');
-        el.classList.add('bg-indigo-600', 'text-white', 'border-indigo-500');
-      }
-    }
-
-    function selectFormUnit(unit, el) {
-      APP_STATE.formSelectedUnit = unit;
-      document.querySelectorAll('.form-unit-btn').forEach(btn => {
-        btn.classList.remove('bg-indigo-600', 'text-white');
-        btn.classList.add('bg-[#10131d]', 'text-slate-400');
-      });
-      if (el) {
-        el.classList.remove('bg-[#10131d]', 'text-slate-400');
-        el.classList.add('bg-indigo-600', 'text-white');
-      }
-    }
-
-    function submitProductForm() {
-      const name = document.getElementById('form-product-name').value.trim();
-      if (!name) {
-        alert('Por favor, informe o nome do produto.');
-        return;
-      }
-
-      const id = document.getElementById('form-product-id').value;
-      const qty = parseInt(document.getElementById('form-product-qty').value) || 1;
-      const obs = document.getElementById('form-product-obs').value.trim();
-
-      // Coleta preços
-      const prices = {};
-      document.querySelectorAll('[data-market-price-id]').forEach(input => {
-        const marketId = input.getAttribute('data-market-price-id');
-        const priceVal = parseFloat(input.value) || 0;
-        prices[marketId] = priceVal;
-      });
-
-      if (id) {
-        // Atualiza existente
-        const item = APP_STATE.products.find(p => p.id === id);
-        if (item) {
-          item.name = name;
-          item.category = APP_STATE.formSelectedCategory;
-          item.qty = qty;
-          item.unit = APP_STATE.formSelectedUnit;
-          item.obs = obs;
-          item.prices = prices;
-        }
-      } else {
-        // Adiciona novo
-        const newProduct = {
-          id: 'prod_' + Date.now(),
-          name: name,
-          category: APP_STATE.formSelectedCategory,
-          qty: qty,
-          unit: APP_STATE.formSelectedUnit,
-          obs: obs,
-          prices: prices
-        };
-        APP_STATE.products.unshift(newProduct);
-      }
-
-      closeProductModal();
-      renderApp();
-    }
-
-    function editProduct(id) {
-      openNewItemModal(id);
-    }
-
-    function deleteProduct(id) {
-      if (confirm('Tem certeza que deseja remover este produto da lista?')) {
-        APP_STATE.products = APP_STATE.products.filter(p => p.id !== id);
-        renderApp();
-      }
-    }
-
-    // --- GERENCIAMENTO DE MERCADOS ---
-    function selectMarketColor(color, btn) {
-      APP_STATE.selectedMarketColor = color;
-      document.querySelectorAll('.color-btn').forEach(b => b.classList.remove('ring-2', 'ring-white'));
-      btn.classList.add('ring-2', 'ring-white');
-    }
-
-    function saveNewMarket() {
-      const name = document.getElementById('new-market-name').value.trim();
-      const address = document.getElementById('new-market-address').value.trim();
-      const isActive = document.getElementById('new-market-active').checked;
-
-      if (!name) {
-        alert('Por favor, informe o nome do supermercado.');
-        return;
-      }
-
-      const newMarketId = 'market_' + Date.now();
-      const newMarket = {
-        id: newMarketId,
-        name: name,
-        address: address,
-        color: APP_STATE.selectedMarketColor || '#10b981',
-        active: isActive
-      };
-
-      APP_STATE.markets.push(newMarket);
-
-      // Limpa formulário
-      document.getElementById('new-market-name').value = '';
-      document.getElementById('new-market-address').value = '';
-
-      renderApp();
-      alert(`Mercado "${name}" adicionado com sucesso!`);
-    }
-
-    function toggleMarketStatus(id) {
-      const market = APP_STATE.markets.find(m => m.id === id);
-      if (market) {
-        market.active = !market.active;
-        renderApp();
-      }
-    }
-
-    function deleteMarket(id) {
-      const market = APP_STATE.markets.find(m => m.id === id);
-      if (!market) return;
-      if (confirm(`Remover "${market.name}" da lista de comparação?`)) {
-        APP_STATE.markets = APP_STATE.markets.filter(m => m.id !== id);
-        renderApp();
-      }
-    }
-
-    // --- UTILITÁRIOS: EXPORTAR E AJUDA ---
-    function toggleInfoModal() {
-      const modal = document.getElementById('modal-info');
-      modal.classList.toggle('hidden');
-    }
-
-    function exportDataJson() {
-      const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(APP_STATE, null, 2));
-      const downloadAnchor = document.createElement('a');
-      downloadAnchor.setAttribute("href", dataStr);
-      downloadAnchor.setAttribute("download", "mercado_compare_backup.json");
-      document.body.appendChild(downloadAnchor);
-      downloadAnchor.click();
-      downloadAnchor.remove();
-    }
-
-    // Inicialização
-    window.addEventListener('DOMContentLoaded', () => {
-      renderApp();
-    });
-  </script>
+  <script src="app.js"></script>
 </body>
 </html>

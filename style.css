@@ -1,0 +1,64 @@
+:root {
+  --bg-page: #f4f4f6;
+  --bg-card: #ffffff;
+  --border-color: #e2e8f0;
+  --bg-input: #f8fafc;
+  --text-main: #18181b;
+  --text-sub: #71717a;
+}
+
+html.dark {
+  --bg-page: #0b0b0e;
+  --bg-card: #15151a;
+  --border-color: #232329;
+  --bg-input: #1b1b22;
+  --text-main: #f4f4f5;
+  --text-sub: #90909a;
+}
+
+html, body {
+  background-color: var(--bg-page) !important;
+  color: var(--text-main) !important;
+  -webkit-tap-highlight-color: transparent;
+  user-select: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+}
+
+.app-card {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-color) !important;
+}
+
+input, select {
+  background-color: var(--bg-input) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-color) !important;
+}
+
+#itemModal input, 
+#itemModal select, 
+#storeModal input, 
+#storeModal select {
+  border-color: #3b4750 !important;
+}
+
+#itemModal input:focus, 
+#itemModal select:focus, 
+#storeModal input:focus, 
+#storeModal select:focus {
+  border-color: #f97316 !important;
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
+}
+
+.scrollbar-thin::-webkit-scrollbar {
+  height: 4px;
+  width: 4px;
+}
+.scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 4px;
+}
+html.dark .scrollbar-thin::-webkit-scrollbar-thumb {
+  background: #2b2b36;
+}
