@@ -528,46 +528,46 @@ function removeStore(id) {
 document.getElementById('searchInput').oninput = () => renderCardsList();
 
 /* ==========================================================================
-   09. GESTÃO DE TEMA (Claro/Escuro) E ATUALIZAÇÃO DINÂMICA DAS BARRAS
+   09. GESTÃO DE TEMA (Claro/Escuro) E SINCRONIZAÇÃO DAS BARRAS DO SISTEMA
    ========================================================================== */
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const sunIcon = document.getElementById('sunIcon');
 const moonIcon = document.getElementById('moonIcon');
 
 function applyTheme(isDark) {
-  // Seleciona a meta tag theme-color no HTML
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   
   if (isDark) {
-    // Ativa o modo escuro no documento
+    // Ativa o modo escuro
     document.documentElement.classList.add('dark');
-    document.documentElement.style.colorScheme = 'dark'; // Informa ao Android para colorir os menus de escuro
+    document.documentElement.style.colorScheme = 'dark'; // Força o Android a escurecer a barra inferior de navegação
     sunIcon.classList.remove('hidden');
     moonIcon.classList.add('hidden');
     localStorage.setItem('mc_theme', 'dark');
     
-    // Atualiza dinamicamente a cor da barra do telemóvel para escuro (#0b0b0e)
+    // Altera a cor da barra superior e do tema do sistema para preto escuro (#0b0b0e)
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#0b0b0e');
   } else {
-    // Ativa o modo claro no documento
+    // Ativa o modo claro
     document.documentElement.classList.remove('dark');
-    document.documentElement.style.colorScheme = 'light'; // Informa ao Android para colorir os menus de claro
+    document.documentElement.style.colorScheme = 'light'; // Força o Android a clarear a barra inferior de navegação
     sunIcon.classList.add('hidden');
     moonIcon.classList.remove('hidden');
     localStorage.setItem('mc_theme', 'light');
     
-    // Atualiza dinamicamente a cor da barra do telemóvel para claro (#f4f4f6)
+    // Altera a cor da barra superior e do tema do sistema para cinza claro (#f4f4f6)
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#f4f4f6');
   }
 }
 
-// Evento de clique no botão de alternar tema
 themeToggleBtn.onclick = () => applyTheme(!document.documentElement.classList.contains('dark'));
 
-// Inicialização ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
-  applyTheme(localStorage.getItem('mc_theme') !== 'light');
+  // Carrega o tema salvo (padrão escuro se não houver preferência)
+  const savedTheme = localStorage.getItem('mc_theme');
+  const isDark = savedTheme ? savedTheme === 'dark' : true;
+  applyTheme(isDark);
+  
   initData();
   renderAll();
 });
-
