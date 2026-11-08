@@ -11,7 +11,6 @@ if ('serviceWorker' in navigator) {
 
 let deferredPrompt = null;
 
-// Captura o evento nativo para permitir a instalação da PWA
 window.addEventListener('beforeinstallprompt', (e) => {
   e.preventDefault();
   deferredPrompt = e;
@@ -23,7 +22,6 @@ window.addEventListener('appinstalled', () => {
   console.log('PWA instalada com sucesso!');
 });
 
-// Dispara o prompt de instalação (com suporte a Android e orientações para iOS)
 function triggerInstall() {
   if (deferredPrompt) {
     deferredPrompt.prompt();
@@ -50,20 +48,21 @@ function triggerInstall() {
    02. DADOS INICIAIS E PERSISTÊNCIA (LocalStorage)
    ========================================================================== */
 const defaultStores = [
-  { id: 's1', name: 'Coop' },
+  { id: 's1', name: 'Confiança' },
   { id: 's2', name: 'Tauste' },
   { id: 's3', name: 'Garça' },
-  { id: 's4', name: 'Atacadão' }
+  { id: 's4', name: 'Atacadão' },
+  { id: 's5', name: 'Max' }
 ];
 
 const defaultItems = [
-  { id: '1', name: 'Papel Higiênico H', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 27.90, s2: 27.99, s3: 23.99, s4: 22.50 }, storeNotes: { s3: 'c/24 fls' } },
-  { id: '2', name: 'Listerine', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 16.98, s2: 36.90, s3: 22.99, s4: 18.90 }, storeNotes: { s1: '500ml' } },
-  { id: '3', name: 'Asepxia', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 11.45, s2: 11.20, s3: null, s4: 10.99 }, storeNotes: {} },
-  { id: '4', name: 'Filtro Café', quantity: 2, unit: 'UN', category: 'Alimentos', preferredStore: null, checked: false, prices: { s1: 4.29, s2: 4.29, s3: 4.29, s4: 3.99 }, storeNotes: { s1: '3 corações' } },
-  { id: '5', name: 'Guardanapo', quantity: 1, unit: 'UN', category: 'Limpeza', preferredStore: null, checked: false, prices: { s1: 8.59, s2: 8.59, s3: 7.99, s4: 8.10 }, storeNotes: { s3: '200 folhas' } },
-  { id: '6', name: 'Mamão', quantity: 1, unit: 'Kg', category: 'Alimentos', preferredStore: null, checked: false, prices: { s1: 11.98, s2: 13.90, s3: 9.99, s4: 10.50 }, storeNotes: {} },
-  { id: '7', name: 'Maçã', quantity: 1, unit: 'Kg', category: 'Alimentos', preferredStore: null, checked: false, prices: { s1: 9.45, s2: 9.80, s3: 8.99, s4: 8.79 }, storeNotes: {} }
+  { id: '1', name: 'Papel Higiênico H', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 27.90, s2: 27.99, s3: 23.99, s4: 22.50, s5: 24.50 }, storeNotes: { s3: 'c/24 fls' } },
+  { id: '2', name: 'Listerine', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 16.98, s2: 36.90, s3: 22.99, s4: 18.90, s5: 19.50 }, storeNotes: { s1: '500ml' } },
+  { id: '3', name: 'Asepxia', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 11.45, s2: 11.20, s3: null, s4: 10.99, s5: 11.00 }, storeNotes: {} },
+  { id: '4', name: 'Filtro Café', quantity: 2, unit: 'UN', category: 'Alimentos', preferredStore: null, checked: false, prices: { s1: 4.29, s2: 4.29, s3: 4.29, s4: 3.99, s5: 4.10 }, storeNotes: { s1: '3 corações' } },
+  { id: '5', name: 'Guardanapo', quantity: 1, unit: 'UN', category: 'Limpeza', preferredStore: null, checked: false, prices: { s1: 8.59, s2: 8.59, s3: 7.99, s4: 8.10, s5: 8.30 }, storeNotes: { s3: '200 folhas' } },
+  { id: '6', name: 'Mamão', quantity: 1, unit: 'Kg', category: 'Hortifruti', preferredStore: null, checked: false, prices: { s1: 11.98, s2: 13.90, s3: 9.99, s4: 10.50, s5: 10.20 }, storeNotes: {} },
+  { id: '7', name: 'Maçã', quantity: 1, unit: 'Kg', category: 'Hortifruti', preferredStore: null, checked: false, prices: { s1: 9.45, s2: 9.80, s3: 8.99, s4: 8.79, s5: 9.10 }, storeNotes: {} }
 ];
 
 let stores = [];
@@ -73,8 +72,8 @@ let activeCategoryFilter = 'Todos';
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v63');
-    const savedItems = localStorage.getItem('mc_items_v63');
+    const savedStores = localStorage.getItem('mc_stores_v64');
+    const savedItems = localStorage.getItem('mc_items_v64');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
@@ -84,8 +83,8 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v63', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v63', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v64', JSON.stringify(stores));
+  localStorage.setItem('mc_items_v64', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -321,7 +320,7 @@ document.getElementById('backupModalBtn').onclick = () => backupModal.classList.
 document.getElementById('closeBackupModal').onclick = () => backupModal.classList.add('hidden');
 
 document.getElementById('exportJsonBtn').onclick = () => {
-  const data = { version: 'v63', stores, items };
+  const data = { version: 'v64', stores, items };
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
