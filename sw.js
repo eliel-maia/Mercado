@@ -1,4 +1,4 @@
-const CACHE_NAME = 'mercado-v80';
+const CACHE_NAME = 'mercado-v83';
 const urlsToCache = [
   './index.html',
   './style.css',
