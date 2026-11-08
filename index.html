@@ -1,11 +1,12 @@
 <!DOCTYPE html>
 <html lang="pt-BR" class="dark">
 <head>
+  <!-- Metadados e Configurações Gerais -->
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>Mercado Compare</title>
 
-  <!-- PWA e Meta Tags -->
+  <!-- PWA, Tema e Ícones -->
   <link rel="manifest" href="./manifest.json">
   <meta name="theme-color" content="#0b0b0e">
   <meta name="apple-mobile-web-app-capable" content="yes">
@@ -13,19 +14,19 @@
   <meta name="apple-mobile-web-app-title" content="Mercado Compare">
   <link rel="apple-touch-icon" href="./icon-512.png">
 
-
+  <!-- Estilos e Tailwind CSS -->
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- Main Container -->
+  <!-- Contentor Principal -->
   <main class="flex-1 w-full space-y-3 pt-2 pb-6 max-w-md mx-auto px-2 sm:px-3">
 
-    <!-- Card Superior Flutuante -->
+    <!-- Card Superior Flutuante (Cabeçalho, Ações e Busca) -->
     <div class="app-card p-4 rounded-3xl shadow-xl border space-y-3.5 relative overflow-hidden">
       
-      <!-- Linha 1: Marca + Botão Instalar, Tema e Backup -->
+      <!-- Linha 1: Título e Botões de Ação (Instalar, Tema, Backup) -->
       <div class="flex items-center justify-between">
         <div class="flex items-center space-x-2.5">
           <div class="bg-orange-500/15 text-orange-500 p-2 rounded-2xl shadow-inner">
@@ -39,26 +40,29 @@
         </div>
 
         <div class="flex items-center space-x-1.5">
+          <!-- Botão de Instalação PWA -->
           <button id="btn-install" onclick="triggerInstall()" title="Instalar Aplicativo" class="p-2.5 border border-[var(--border-color)] bg-[var(--bg-input)] hover:opacity-80 rounded-xl transition-all shadow-sm flex items-center justify-center text-emerald-500">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
           </button>
+          <!-- Botão de Alternar Tema (Claro/Escuro) -->
           <button id="themeToggleBtn" title="Alternar Tema" class="p-2.5 border border-[var(--border-color)] bg-[var(--bg-input)] hover:opacity-80 rounded-xl transition-all shadow-sm flex items-center justify-center">
             <svg id="sunIcon" class="w-4 h-4 text-amber-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
             <svg id="moonIcon" class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.03 9.03 0 0012 21a9.03 9.03 0 008.354-5.646z"></path></svg>
           </button>
+          <!-- Botão de Backup e Restauro -->
           <button id="backupModalBtn" title="Backup e Restaurar" class="p-2.5 border border-[var(--border-color)] bg-[var(--bg-input)] hover:opacity-80 rounded-xl transition-all shadow-sm flex items-center justify-center text-[var(--text-main)]">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12C21 13.66 16.97 15 12 15C7.03 15 3 13.66 3 12"></path><path d="M3 5V19C3 20.66 7.03 22 12 22C16.97 22 21 20.66 21 19V5"></path></svg>
           </button>
         </div>
       </div>
 
-      <!-- Linha 2: Pesquisa -->
+      <!-- Linha 2: Campo de Pesquisa Rápida -->
       <div class="relative w-full">
         <input type="text" id="searchInput" placeholder="Pesquisar..." class="w-full pl-9 pr-3 py-2 text-xs placeholder-zinc-500 rounded-2xl border focus:outline-none focus:ring-2 focus:ring-orange-500 font-medium">
         <svg class="w-4 h-4 opacity-40 absolute left-3 top-2.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path></svg>
       </div>
 
-      <!-- Linha 3: Botões Principais -->
+      <!-- Linha 3: Botões Principais (Novo Item e Gerenciar Mercados) -->
       <div class="flex items-center gap-2 pt-0.5">
         <button id="addItemBtn" class="flex-1 bg-orange-500 hover:bg-orange-600 active:bg-orange-700 text-white py-2 px-3 rounded-2xl text-xs font-bold flex items-center justify-center space-x-1.5 shadow-md transition-all active:scale-95">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M12 4v16m8-8H4"></path></svg>
@@ -72,22 +76,22 @@
 
     </div>
 
-    <!-- Pílulas de Categorias -->
+    <!-- Pílulas de Filtro por Categoria -->
     <div class="overflow-x-auto scrollbar-thin py-1">
       <div id="categoryPills" class="flex items-center space-x-2 min-w-max"></div>
     </div>
 
-    <!-- Cards de Resumo Superior por Mercado -->
+    <!-- Cards de Resumo Superior (Totais por Mercado) -->
     <div class="app-card px-2 py-2.5 rounded-2xl border shadow-lg overflow-x-auto scrollbar-thin">
       <div id="storeSummaries" class="flex items-center divide-x divide-[var(--border-color)] w-full min-w-max"></div>
     </div>
 
-    <!-- Lista de Itens -->
+    <!-- Lista Dinâmica de Itens de Compras -->
     <div class="space-y-2.5 pb-4" id="cardsListContainer"></div>
 
   </main>
 
-  <!-- Modais -->
+  <!-- Modal de Backup e Restauro -->
   <div id="backupModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
     <div class="app-card rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl border border-[var(--border-color)] relative">
       <div class="flex items-center justify-between">
@@ -106,6 +110,7 @@
     </div>
   </div>
 
+  <!-- Modal de Adicionar / Editar Item -->
   <div id="itemModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
     <div class="app-card rounded-3xl max-w-md w-full p-4 space-y-3 shadow-2xl border border-[var(--border-color)] max-h-[90vh] overflow-y-auto scrollbar-thin">
       <h3 id="modalTitle" class="text-sm font-bold">Adicionar Item</h3>
@@ -147,6 +152,7 @@
     </div>
   </div>
 
+  <!-- Modal de Gerenciar Mercados -->
   <div id="storeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
     <div class="app-card rounded-3xl max-w-sm w-full p-4 space-y-3.5 shadow-2xl border border-[var(--border-color)]">
       <h3 class="text-sm font-bold">Gerenciar Mercados</h3>
@@ -161,6 +167,7 @@
     </div>
   </div>
 
+  <!-- Script Principal da Aplicação -->
   <script src="app.js"></script>
 </body>
 </html>
