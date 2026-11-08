@@ -528,7 +528,7 @@ function removeStore(id) {
 document.getElementById('searchInput').oninput = () => renderCardsList();
 
 /* ==========================================================================
-   09. GESTÃO DE TEMA (Claro/Escuro) E SINCRONIZAÇÃO DAS BARRAS
+   09. GESTÃO DE TEMA (Claro/Escuro) E CORES DAS BARRAS DO SISTEMA
    ========================================================================== */
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const sunIcon = document.getElementById('sunIcon');
@@ -543,17 +543,13 @@ function applyTheme(isDark) {
     sunIcon.classList.remove('hidden');
     moonIcon.classList.add('hidden');
     localStorage.setItem('mc_theme', 'dark');
-    
-    // Define exatamente a cor de fundo do tema escuro para unificar a barra
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#0b0b0e');
   } else {
     document.documentElement.classList.remove('dark');
     document.documentElement.style.colorScheme = 'light';
     sunIcon.classList.add('hidden');
-    moonIcon.classList.add('hidden'); // Corrigido para mostrar a lua no claro
+    moonIcon.classList.remove('hidden');
     localStorage.setItem('mc_theme', 'light');
-    
-    // Define exatamente a cor de fundo do tema claro para unificar a barra
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#f4f4f6');
   }
 }
@@ -561,10 +557,7 @@ function applyTheme(isDark) {
 themeToggleBtn.onclick = () => applyTheme(!document.documentElement.classList.contains('dark'));
 
 document.addEventListener('DOMContentLoaded', () => {
-  const savedTheme = localStorage.getItem('mc_theme');
-  const isDark = savedTheme ? savedTheme === 'dark' : true;
-  applyTheme(isDark);
-  
+  applyTheme(localStorage.getItem('mc_theme') !== 'light');
   initData();
   renderAll();
 });
