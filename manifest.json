@@ -1,8 +1,8 @@
 {
   "name": "Mercado Compare",
   "short_name": "MercadoCompare",
-  "start_url": "/mercado-/index.html",
-  "scope": "/mercado-/",
+  "start_url": "./index.html",
+  "scope": "./",
   "display": "standalone",
   "background_color": "#0b0b0e",
   "theme_color": "#0b0b0e",
