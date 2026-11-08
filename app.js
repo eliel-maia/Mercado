@@ -528,36 +528,46 @@ function removeStore(id) {
 document.getElementById('searchInput').oninput = () => renderCardsList();
 
 /* ==========================================================================
-   09. GESTÃO DE TEMA (Claro/Escuro) E CORES DAS BARRAS DO SISTEMA
+   09. GESTÃO DE TEMA (Claro/Escuro) E ATUALIZAÇÃO DINÂMICA DAS BARRAS
    ========================================================================== */
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const sunIcon = document.getElementById('sunIcon');
 const moonIcon = document.getElementById('moonIcon');
 
 function applyTheme(isDark) {
+  // Seleciona a meta tag theme-color no HTML
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   
   if (isDark) {
+    // Ativa o modo escuro no documento
     document.documentElement.classList.add('dark');
-    document.documentElement.style.colorScheme = 'dark';
+    document.documentElement.style.colorScheme = 'dark'; // Informa ao Android para colorir os menus de escuro
     sunIcon.classList.remove('hidden');
     moonIcon.classList.add('hidden');
     localStorage.setItem('mc_theme', 'dark');
+    
+    // Atualiza dinamicamente a cor da barra do telemóvel para escuro (#0b0b0e)
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#0b0b0e');
   } else {
+    // Ativa o modo claro no documento
     document.documentElement.classList.remove('dark');
-    document.documentElement.style.colorScheme = 'light';
+    document.documentElement.style.colorScheme = 'light'; // Informa ao Android para colorir os menus de claro
     sunIcon.classList.add('hidden');
     moonIcon.classList.remove('hidden');
     localStorage.setItem('mc_theme', 'light');
+    
+    // Atualiza dinamicamente a cor da barra do telemóvel para claro (#f4f4f6)
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#f4f4f6');
   }
 }
 
+// Evento de clique no botão de alternar tema
 themeToggleBtn.onclick = () => applyTheme(!document.documentElement.classList.contains('dark'));
 
+// Inicialização ao carregar a página
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('mc_theme') !== 'light');
   initData();
   renderAll();
 });
+
