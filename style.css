@@ -37,6 +37,11 @@ html, body {
   border-color: var(--border-color) !important;
 }
 
+/* Correção para evitar barras brancas indesejadas em modais e caixas de texto com o teclado aberto */
+#itemModal, #storeModal, #backupModal {
+  background-color: rgba(0, 0, 0, 0.75) !important;
+}
+
 /* ==========================================================================
    ESTILIZAÇÃO DE FORMULÁRIOS E INPUTS
    ========================================================================== */
