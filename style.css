@@ -1,4 +1,8 @@
+/* ==========================================================================
+   VARIÁVEIS DE TEMA (Claro e Escuro) E CORES DE SISTEMA
+   ========================================================================== */
 :root {
+  color-scheme: light;
   --bg-page: #f4f4f6;
   --bg-card: #ffffff;
   --border-color: #e2e8f0;
@@ -8,6 +12,7 @@
 }
 
 html.dark {
+  color-scheme: dark;
   --bg-page: #0b0b0e;
   --bg-card: #15151a;
   --border-color: #232329;
@@ -16,6 +21,9 @@ html.dark {
   --text-sub: #90909a;
 }
 
+/* ==========================================================================
+   ESTILOS GLOBAIS E DE CORPO
+   ========================================================================== */
 html, body {
   background-color: var(--bg-page) !important;
   color: var(--text-main) !important;
@@ -29,19 +37,24 @@ html, body {
   border-color: var(--border-color) !important;
 }
 
+/* ==========================================================================
+   ESTILIZAÇÃO DE FORMULÁRIOS E INPUTS
+   ========================================================================== */
 input, select {
   background-color: var(--bg-input) !important;
   color: var(--text-main) !important;
   border-color: var(--border-color) !important;
 }
 
+/* Bordas suaves e elegantes nos modais de Item e Mercados */
 #itemModal input, 
 #itemModal select, 
 #storeModal input, 
 #storeModal select {
-  border-color: #3b4750 !important;
+  border-color: #3f3f4a !important;
 }
 
+/* Comportamento de Foco com destaque em Laranja */
 #itemModal input:focus, 
 #itemModal select:focus, 
 #storeModal input:focus, 
@@ -51,6 +64,9 @@ input, select {
   box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.2);
 }
 
+/* ==========================================================================
+   PERSONALIZAÇÃO DE SCROLLBARS
+   ========================================================================== */
 .scrollbar-thin::-webkit-scrollbar {
   height: 4px;
   width: 4px;
