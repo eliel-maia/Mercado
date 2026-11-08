@@ -20,9 +20,9 @@
 </head>
 <body class="min-h-screen flex flex-col">
 
-  <!-- Contentor Principal -->
-  <main class="flex-1 w-full space-y-3 pt-2 pb-6 max-w-md mx-auto px-2 sm:px-3">
-
+  <!-- Cabeçalho Fixo / Sticky para que a lista passe por baixo ao rolar -->
+  <header class="sticky top-0 z-40 bg-[var(--bg-page)]/95 backdrop-blur-md pb-2 pt-2 w-full max-w-md mx-auto px-2 sm:px-3 space-y-2 border-b border-[var(--border-color)]/40 shadow-sm">
+    
     <!-- Card Superior Flutuante (Cabeçalho, Ações e Busca) -->
     <div class="app-card p-4 rounded-3xl shadow-xl border space-y-3.5 relative overflow-hidden">
       
@@ -86,9 +86,12 @@
       <div id="storeSummaries" class="flex items-center divide-x divide-[var(--border-color)] w-full min-w-max"></div>
     </div>
 
-    <!-- Lista Dinâmica de Itens de Compras -->
-    <div class="space-y-2.5 pb-4" id="cardsListContainer"></div>
+  </header>
 
+  <!-- Contentor Principal (Lista de Itens) -->
+  <main class="flex-1 w-full space-y-2.5 pt-2 pb-6 max-w-md mx-auto px-2 sm:px-3">
+    <!-- Lista Dinâmica de Itens de Compras -->
+    <div class="space-y-2.5" id="cardsListContainer"></div>
   </main>
 
   <!-- Modal de Backup e Restauro -->
@@ -138,6 +141,9 @@
             <option value="Higiene">Higiene</option>
             <option value="Alimentos">Alimentos</option>
             <option value="Limpeza">Limpeza</option>
+            <option value="Hortifruti">Hortifruti</option>
+            <option value="Açougue">Açougue</option>
+            <option value="Frios">Frios</option>
             <option value="Outros">Outros</option>
           </select>
         </div>
