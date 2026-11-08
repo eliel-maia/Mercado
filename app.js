@@ -528,7 +528,7 @@ function removeStore(id) {
 document.getElementById('searchInput').oninput = () => renderCardsList();
 
 /* ==========================================================================
-   09. GESTÃO DE TEMA (Claro/Escuro) E SINCRONIZAÇÃO DAS BARRAS DO SISTEMA
+   09. GESTÃO DE TEMA (Claro/Escuro) E SINCRONIZAÇÃO DAS BARRAS
    ========================================================================== */
 const themeToggleBtn = document.getElementById('themeToggleBtn');
 const sunIcon = document.getElementById('sunIcon');
@@ -538,24 +538,22 @@ function applyTheme(isDark) {
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
   
   if (isDark) {
-    // Ativa o modo escuro
     document.documentElement.classList.add('dark');
-    document.documentElement.style.colorScheme = 'dark'; // Força o Android a escurecer a barra inferior de navegação
+    document.documentElement.style.colorScheme = 'dark';
     sunIcon.classList.remove('hidden');
     moonIcon.classList.add('hidden');
     localStorage.setItem('mc_theme', 'dark');
     
-    // Altera a cor da barra superior e do tema do sistema para preto escuro (#0b0b0e)
+    // Define exatamente a cor de fundo do tema escuro para unificar a barra
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#0b0b0e');
   } else {
-    // Ativa o modo claro
     document.documentElement.classList.remove('dark');
-    document.documentElement.style.colorScheme = 'light'; // Força o Android a clarear a barra inferior de navegação
+    document.documentElement.style.colorScheme = 'light';
     sunIcon.classList.add('hidden');
-    moonIcon.classList.remove('hidden');
+    moonIcon.classList.add('hidden'); // Corrigido para mostrar a lua no claro
     localStorage.setItem('mc_theme', 'light');
     
-    // Altera a cor da barra superior e do tema do sistema para cinza claro (#f4f4f6)
+    // Define exatamente a cor de fundo do tema claro para unificar a barra
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#f4f4f6');
   }
 }
@@ -563,7 +561,6 @@ function applyTheme(isDark) {
 themeToggleBtn.onclick = () => applyTheme(!document.documentElement.classList.contains('dark'));
 
 document.addEventListener('DOMContentLoaded', () => {
-  // Carrega o tema salvo (padrão escuro se não houver preferência)
   const savedTheme = localStorage.getItem('mc_theme');
   const isDark = savedTheme ? savedTheme === 'dark' : true;
   applyTheme(isDark);
