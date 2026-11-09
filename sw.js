@@ -1,7 +1,7 @@
 /* ==========================================================================
    CONFIGURAÇÃO DE CACHE E SERVICE WORKER (PWA)
    ========================================================================== */
-const CACHE_NAME = 'mercado-v84';
+const CACHE_NAME = 'mercado-v85';
 const urlsToCache = [
   './index.html',
   './style.css',
