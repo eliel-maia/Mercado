@@ -55,6 +55,8 @@ const defaultStores = [
   { id: 's5', name: 'Max' }
 ];
 
+const defaultCategories = ['Higiene', 'Alimentos', 'Limpeza', 'Hortifruti', 'Açougue', 'Frios', 'Outros'];
+
 const defaultItems = [
   { id: '1', name: 'Papel Higiênico H', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 27.90, s2: 27.99, s3: 23.99, s4: 22.50, s5: 24.50 }, storeNotes: { s3: 'c/24 fls' } },
   { id: '2', name: 'Listerine', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 16.98, s2: 36.90, s3: 22.99, s4: 18.90, s5: 19.50 }, storeNotes: { s1: '500ml' } },
@@ -66,25 +68,30 @@ const defaultItems = [
 ];
 
 let stores = [];
+let categories = [];
 let items = [];
 let activeStoreFilter = null;
-let activeCategoryFilter = null; // Começa sem filtro ativo (mostra todos)
+let activeCategoryFilter = null;
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v85');
-    const savedItems = localStorage.getItem('mc_items_v85');
+    const savedStores = localStorage.getItem('mc_stores_v86');
+    const savedCategories = localStorage.getItem('mc_categories_v86');
+    const savedItems = localStorage.getItem('mc_items_v86');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
+    categories = savedCategories ? JSON.parse(savedCategories) : defaultCategories;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
     stores = defaultStores;
+    categories = defaultCategories;
     items = defaultItems;
   }
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v85', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v85', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v86', JSON.stringify(stores));
+  localStorage.setItem('mc_categories_v86', JSON.stringify(categories));
+  localStorage.setItem('mc_items_v86', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -99,12 +106,11 @@ function renderAll() {
 }
 
 /* ==========================================================================
-   03. RENDERIZAÇÃO DE CATEGORIAS E FILTROS (Sem botão 'Todos', com Toggle)
+   03. RENDERIZAÇÃO DE CATEGORIAS E FILTROS
    ========================================================================== */
 function renderCategoryPills() {
   const container = document.getElementById('categoryPills');
   if (!container) return;
-  const categories = Array.from(new Set(items.map(i => i.category || 'Outros')));
 
   container.innerHTML = categories.map(cat => {
     const isSelected = activeCategoryFilter === cat;
@@ -119,15 +125,15 @@ function renderCategoryPills() {
 
 function toggleCategory(cat) {
   if (activeCategoryFilter === cat) {
-    activeCategoryFilter = null; // Desmarca se clicar de novo
+    activeCategoryFilter = null;
   } else {
-    activeCategoryFilter = cat;  // Ativa a categoria clicada
+    activeCategoryFilter = cat;
   }
   renderAll();
 }
 
 /* ==========================================================================
-   04. RENDERIZAÇÃO DA LISTA DE PRODUTOS E CARDS
+   04. RENDERIZAÇÃO DA LISTA DE PRODUTOS E CARDS (Em Ordem Alfabética)
    ========================================================================== */
 function renderCardsList() {
   const container = document.getElementById('cardsListContainer');
@@ -153,6 +159,9 @@ function renderCardsList() {
 
     return matchesSearch && matchesCat;
   });
+
+  // Ordenação Alfabética pelos produtos
+  filteredItems.sort((a, b) => a.name.localeCompare(b.name, 'pt-BR', { sensitivity: 'accent' }));
 
   if (filteredItems.length === 0) {
     container.innerHTML = `
@@ -334,7 +343,7 @@ if (closeBackupModal && backupModal) {
 const exportJsonBtn = document.getElementById('exportJsonBtn');
 if (exportJsonBtn) {
   exportJsonBtn.onclick = () => {
-    const data = { version: 'v85', stores, items };
+    const data = { version: 'v86', stores, categories, items };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
@@ -359,6 +368,7 @@ if (triggerImportBtn && importJsonInput) {
           const importedData = JSON.parse(event.target.result);
           if (importedData.stores && importedData.items) {
             stores = importedData.stores;
+            categories = importedData.categories || defaultCategories;
             items = importedData.items;
             saveData();
             renderAll();
@@ -376,6 +386,7 @@ if (resetDataBtn) {
   resetDataBtn.onclick = () => {
     if (confirm('Deseja restaurar os dados originais?')) {
       stores = defaultStores;
+      categories = defaultCategories;
       items = defaultItems;
       activeStoreFilter = null;
       activeCategoryFilter = null;
@@ -417,7 +428,11 @@ function openItemModal(item = null) {
   if (itemName) itemName.value = item ? item.name : '';
   if (itemQuantity) itemQuantity.value = item ? (item.quantity || 1) : 1;
   if (itemUnit) itemUnit.value = item ? (item.unit || 'UN') : 'UN';
-  if (itemCategory) itemCategory.value = item ? (item.category || 'Higiene') : 'Higiene';
+  
+  if (itemCategory) {
+    itemCategory.innerHTML = categories.map(cat => `<option value="${cat}">${cat}</option>`).join('');
+    itemCategory.value = item ? (item.category || categories[0]) : categories[0];
+  }
 
   window.currentPreferredStore = item ? item.preferredStore : null;
 
@@ -529,7 +544,7 @@ if (itemForm) {
 }
 
 /* ==========================================================================
-   08. MODAL DE GERENCIAR MERCADOS
+   08. MODAL DE GERENCIAR MERCADOS (Com Edição e Exclusão)
    ========================================================================== */
 const storeModal = document.getElementById('storeModal');
 const manageStoresBtnModal = document.getElementById('manageStoresBtnModal');
@@ -547,26 +562,53 @@ if (closeStoreModal && storeModal) {
 
 function openStoreModal() {
   const storeList = document.getElementById('storeList');
+  const editStoreId = document.getElementById('editStoreId');
+  const newStoreName = document.getElementById('newStoreName');
+  const addStoreBtn = document.getElementById('addStoreBtn');
+
+  if (editStoreId) editStoreId.value = '';
+  if (newStoreName) newStoreName.value = '';
+  if (addStoreBtn) addStoreBtn.innerText = 'Adicionar';
+
   if (storeList) {
     storeList.innerHTML = stores.map(store => `
       <div class="flex items-center justify-between bg-[var(--bg-input)] p-2.5 rounded-2xl border border-[var(--border-color)]">
         <span class="text-xs font-semibold">${store.name}</span>
-        <button onclick="removeStore('${store.id}')" class="text-rose-500 hover:opacity-80 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+        <div class="flex items-center space-x-1">
+          <button onclick="startEditStore('${store.id}', '${store.name}')" class="opacity-60 hover:opacity-100 p-1" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+          <button onclick="removeStore('${store.id}')" class="text-rose-500 hover:opacity-80 p-1" title="Apagar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+        </div>
       </div>
     `).join('');
   }
   if (storeModal) storeModal.classList.remove('hidden');
 }
 
+function startEditStore(id, name) {
+  document.getElementById('editStoreId').value = id;
+  document.getElementById('newStoreName').value = name;
+  document.getElementById('addStoreBtn').innerText = 'Salvar';
+}
+
 const addStoreBtn = document.getElementById('addStoreBtn');
 if (addStoreBtn) {
   addStoreBtn.onclick = () => {
     const input = document.getElementById('newStoreName');
+    const editIdInput = document.getElementById('editStoreId');
     if (!input) return;
     const name = input.value.trim();
+    const editId = editIdInput ? editIdInput.value : '';
+
     if (name) {
-      stores.push({ id: 's_' + Date.now(), name });
+      if (editId) {
+        const store = stores.find(s => s.id === editId);
+        if (store) store.name = name;
+      } else {
+        stores.push({ id: 's_' + Date.now(), name });
+      }
       input.value = '';
+      if (editIdInput) editIdInput.value = '';
+      addStoreBtn.innerText = 'Adicionar';
       saveData();
       renderAll();
       openStoreModal();
@@ -585,13 +627,113 @@ function removeStore(id) {
   }
 }
 
+/* ==========================================================================
+   09. MODAL DE GERENCIAR CATEGORIAS (Novo)
+   ========================================================================== */
+const categoryModal = document.getElementById('categoryModal');
+const manageCategoriesBtnModal = document.getElementById('manageCategoriesBtnModal');
+if (manageCategoriesBtnModal) {
+  manageCategoriesBtnModal.onclick = () => {
+    const topMenuModal = document.getElementById('topMenuModal');
+    if (topMenuModal) topMenuModal.classList.add('hidden');
+    openCategoryModal();
+  };
+}
+const closeCategoryModal = document.getElementById('closeCategoryModal');
+if (closeCategoryModal && categoryModal) {
+  closeCategoryModal.onclick = () => categoryModal.classList.add('hidden');
+}
+
+function openCategoryModal() {
+  const categoryList = document.getElementById('categoryList');
+  const editOldName = document.getElementById('editCategoryOldName');
+  const newCategoryName = document.getElementById('newCategoryName');
+  const addCategoryBtn = document.getElementById('addCategoryBtn');
+
+  if (editOldName) editOldName.value = '';
+  if (newCategoryName) newCategoryName.value = '';
+  if (addCategoryBtn) addCategoryBtn.innerText = 'Adicionar';
+
+  if (categoryList) {
+    categoryList.innerHTML = categories.map(cat => `
+      <div class="flex items-center justify-between bg-[var(--bg-input)] p-2.5 rounded-2xl border border-[var(--border-color)]">
+        <span class="text-xs font-semibold">${cat}</span>
+        <div class="flex items-center space-x-1">
+          <button onclick="startEditCategory('${cat}')" class="opacity-60 hover:opacity-100 p-1" title="Editar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path></svg></button>
+          <button onclick="removeCategory('${cat}')" class="text-rose-500 hover:opacity-80 p-1" title="Apagar"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+        </div>
+      </div>
+    `).join('');
+  }
+  if (categoryModal) categoryModal.classList.remove('hidden');
+}
+
+function startEditCategory(catName) {
+  document.getElementById('editCategoryOldName').value = catName;
+  document.getElementById('newCategoryName').value = catName;
+  document.getElementById('addCategoryBtn').innerText = 'Salvar';
+}
+
+const addCategoryBtn = document.getElementById('addCategoryBtn');
+if (addCategoryBtn) {
+  addCategoryBtn.onclick = () => {
+    const input = document.getElementById('newCategoryName');
+    const editOldInput = document.getElementById('editCategoryOldName');
+    if (!input) return;
+    const name = input.value.trim();
+    const oldName = editOldInput ? editOldInput.value : '';
+
+    if (name) {
+      if (oldName) {
+        const index = categories.indexOf(oldName);
+        if (index !== -1) categories[index] = name;
+        items.forEach(item => {
+          if (item.category === oldName) item.category = name;
+        });
+        if (activeCategoryFilter === oldName) activeCategoryFilter = name;
+      } else {
+        if (!categories.includes(name)) {
+          categories.push(name);
+        } else {
+          alert('Esta categoria já existe.');
+          return;
+        }
+      }
+      input.value = '';
+      if (editOldInput) editOldInput.value = '';
+      addCategoryBtn.innerText = 'Adicionar';
+      saveData();
+      renderAll();
+      openCategoryModal();
+    }
+  };
+}
+
+function removeCategory(catName) {
+  if (categories.length <= 1) {
+    alert('Você precisa ter pelo menos uma categoria.');
+    return;
+  }
+  if (confirm(`Deseja apagar a categoria "${catName}"? Os itens dela irão para "Outros".`)) {
+    categories = categories.filter(c => c !== catName);
+    if (!categories.includes('Outros')) categories.push('Outros');
+    items.forEach(item => {
+      if (item.category === catName) item.category = 'Outros';
+    });
+    if (activeCategoryFilter === catName) activeCategoryFilter = null;
+    saveData();
+    renderAll();
+    openCategoryModal();
+  }
+}
+
 const searchInput = document.getElementById('searchInput');
 if (searchInput) {
   searchInput.oninput = () => renderCardsList();
 }
 
 /* ==========================================================================
-   09. GESTÃO DE TEMA (Claro/Escuro) E CORES DAS BARRAS DO SISTEMA
+   10. GESTÃO DE TEMA (Claro/Escuro) E CORES DAS BARRAS DO SISTEMA
    ========================================================================== */
 const themeToggleBtnModal = document.getElementById('themeToggleBtnModal');
 
