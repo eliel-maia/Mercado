@@ -72,8 +72,8 @@ let activeCategoryFilter = 'Todos';
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v80');
-    const savedItems = localStorage.getItem('mc_items_v80');
+    const savedStores = localStorage.getItem('mc_stores_v82');
+    const savedItems = localStorage.getItem('mc_items_v82');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
@@ -83,8 +83,8 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v80', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v80', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v82', JSON.stringify(stores));
+  localStorage.setItem('mc_items_v82', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -128,7 +128,7 @@ function filterByCategory(cat) {
    ========================================================================== */
 function renderCardsList() {
   const container = document.getElementById('cardsListContainer');
-  const searchQuery = document.getElementById('searchInput').value.toLowerCase();
+  const searchQuery = document.getElementById('searchInputModal').value.toLowerCase();
 
   let filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery);
@@ -316,11 +316,11 @@ function deleteItem(id) {
    06. MODAL DE BACKUP E RESTAURO DE DADOS
    ========================================================================== */
 const backupModal = document.getElementById('backupModal');
-document.getElementById('backupModalBtn').onclick = () => backupModal.classList.remove('hidden');
+document.getElementById('backupModalBtnModal').onclick = () => backupModal.classList.remove('hidden');
 document.getElementById('closeBackupModal').onclick = () => backupModal.classList.add('hidden');
 
 document.getElementById('exportJsonBtn').onclick = () => {
-  const data = { version: 'v80', stores, items };
+  const data = { version: 'v82', stores, items };
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
@@ -368,7 +368,10 @@ document.getElementById('resetDataBtn').onclick = () => {
    07. MODAL DE ADICIONAR / EDITAR ITENS E PRIORIDADE DE MERCADO
    ========================================================================== */
 const itemModal = document.getElementById('itemModal');
-document.getElementById('addItemBtn').onclick = () => openItemModal();
+document.getElementById('addItemBtnModal').onclick = () => {
+  document.getElementById('topMenuModal').classList.add('hidden');
+  openItemModal();
+};
 document.getElementById('closeItemModal').onclick = () => itemModal.classList.add('hidden');
 
 function openItemModal(item = null) {
@@ -487,7 +490,10 @@ document.getElementById('itemForm').onsubmit = (e) => {
    08. MODAL DE GERENCIAR MERCADOS
    ========================================================================== */
 const storeModal = document.getElementById('storeModal');
-document.getElementById('manageStoresBtn').onclick = () => openStoreModal();
+document.getElementById('manageStoresBtnModal').onclick = () => {
+  document.getElementById('topMenuModal').classList.add('hidden');
+  openStoreModal();
+};
 document.getElementById('closeStoreModal').onclick = () => storeModal.classList.add('hidden');
 
 function openStoreModal() {
@@ -524,14 +530,12 @@ function removeStore(id) {
   }
 }
 
-document.getElementById('searchInput').oninput = () => renderCardsList();
+document.getElementById('searchInputModal').oninput = () => renderCardsList();
 
 /* ==========================================================================
    09. GESTÃO DE TEMA (Claro/Escuro) E CORES DAS BARRAS DO SISTEMA
    ========================================================================== */
-const themeToggleBtn = document.getElementById('themeToggleBtn');
-const sunIcon = document.getElementById('sunIcon');
-const moonIcon = document.getElementById('moonIcon');
+const themeToggleBtnModal = document.getElementById('themeToggleBtnModal');
 
 function applyTheme(isDark) {
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
@@ -539,21 +543,22 @@ function applyTheme(isDark) {
   if (isDark) {
     document.documentElement.classList.add('dark');
     document.documentElement.style.colorScheme = 'dark';
-    sunIcon.classList.remove('hidden');
-    moonIcon.classList.add('hidden');
     localStorage.setItem('mc_theme', 'dark');
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#0b0b0e');
   } else {
     document.documentElement.classList.remove('dark');
     document.documentElement.style.colorScheme = 'light';
-    sunIcon.classList.add('hidden');
-    moonIcon.classList.remove('hidden');
     localStorage.setItem('mc_theme', 'light');
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#f4f4f6');
   }
 }
 
-themeToggleBtn.onclick = () => applyTheme(!document.documentElement.classList.contains('dark'));
+themeToggleBtnModal.onclick = () => applyTheme(!document.documentElement.classList.contains('dark'));
+
+// Controle do Botão Flutuante para abrir/fechar o menu superior
+const topMenuModal = document.getElementById('topMenuModal');
+document.getElementById('openTopMenuBtn').onclick = () => topMenuModal.classList.remove('hidden');
+document.getElementById('closeTopMenuModal').onclick = () => topMenuModal.classList.add('hidden');
 
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('mc_theme') !== 'light');
