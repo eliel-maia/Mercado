@@ -72,8 +72,8 @@ let activeCategoryFilter = 'Todos';
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v83');
-    const savedItems = localStorage.getItem('mc_items_v83');
+    const savedStores = localStorage.getItem('mc_stores_v84');
+    const savedItems = localStorage.getItem('mc_items_v84');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
@@ -83,8 +83,8 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v83', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v83', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v84', JSON.stringify(stores));
+  localStorage.setItem('mc_items_v84', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -130,7 +130,7 @@ function filterByCategory(cat) {
 function renderCardsList() {
   const container = document.getElementById('cardsListContainer');
   if (!container) return;
-  const searchInput = document.getElementById('searchInputModal');
+  const searchInput = document.getElementById('searchInput');
   const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
 
   let filteredItems = items.filter(item => {
@@ -332,7 +332,7 @@ if (closeBackupModal && backupModal) {
 const exportJsonBtn = document.getElementById('exportJsonBtn');
 if (exportJsonBtn) {
   exportJsonBtn.onclick = () => {
-    const data = { version: 'v83', stores, items };
+    const data = { version: 'v84', stores, items };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
@@ -583,9 +583,9 @@ function removeStore(id) {
   }
 }
 
-const searchInputModal = document.getElementById('searchInputModal');
-if (searchInputModal) {
-  searchInputModal.oninput = () => renderCardsList();
+const searchInput = document.getElementById('searchInput');
+if (searchInput) {
+  searchInput.oninput = () => renderCardsList();
 }
 
 /* ==========================================================================
