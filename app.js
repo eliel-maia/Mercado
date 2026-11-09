@@ -72,8 +72,8 @@ let activeCategoryFilter = 'Todos';
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v82');
-    const savedItems = localStorage.getItem('mc_items_v82');
+    const savedStores = localStorage.getItem('mc_stores_v83');
+    const savedItems = localStorage.getItem('mc_items_v83');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
@@ -83,8 +83,8 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v82', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v82', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v83', JSON.stringify(stores));
+  localStorage.setItem('mc_items_v83', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -103,6 +103,7 @@ function renderAll() {
    ========================================================================== */
 function renderCategoryPills() {
   const container = document.getElementById('categoryPills');
+  if (!container) return;
   const categoriesSet = new Set(items.map(i => i.category || 'Outros'));
   const categories = ['Todos', ...Array.from(categoriesSet)];
 
@@ -128,7 +129,9 @@ function filterByCategory(cat) {
    ========================================================================== */
 function renderCardsList() {
   const container = document.getElementById('cardsListContainer');
-  const searchQuery = document.getElementById('searchInputModal').value.toLowerCase();
+  if (!container) return;
+  const searchInput = document.getElementById('searchInputModal');
+  const searchQuery = searchInput ? searchInput.value.toLowerCase() : '';
 
   let filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery);
@@ -239,6 +242,7 @@ function renderCardsList() {
    ========================================================================== */
 function renderSummaries() {
   const container = document.getElementById('storeSummaries');
+  if (!container) return;
   const storeTotals = {};
   const storeCounts = {};
 
@@ -316,95 +320,128 @@ function deleteItem(id) {
    06. MODAL DE BACKUP E RESTAURO DE DADOS
    ========================================================================== */
 const backupModal = document.getElementById('backupModal');
-document.getElementById('backupModalBtnModal').onclick = () => backupModal.classList.remove('hidden');
-document.getElementById('closeBackupModal').onclick = () => backupModal.classList.add('hidden');
+const backupBtnModal = document.getElementById('backupModalBtnModal');
+if (backupBtnModal && backupModal) {
+  backupBtnModal.onclick = () => backupModal.classList.remove('hidden');
+}
+const closeBackupModal = document.getElementById('closeBackupModal');
+if (closeBackupModal && backupModal) {
+  closeBackupModal.onclick = () => backupModal.classList.add('hidden');
+}
 
-document.getElementById('exportJsonBtn').onclick = () => {
-  const data = { version: 'v82', stores, items };
-  const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
-  const downloadAnchor = document.createElement('a');
-  downloadAnchor.setAttribute("href", dataStr);
-  downloadAnchor.setAttribute("download", `mercado_compare_backup_${new Date().toISOString().slice(0,10)}.json`);
-  document.body.appendChild(downloadAnchor);
-  downloadAnchor.click();
-  downloadAnchor.remove();
-  backupModal.classList.add('hidden');
-};
+const exportJsonBtn = document.getElementById('exportJsonBtn');
+if (exportJsonBtn) {
+  exportJsonBtn.onclick = () => {
+    const data = { version: 'v83', stores, items };
+    const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
+    const downloadAnchor = document.createElement('a');
+    downloadAnchor.setAttribute("href", dataStr);
+    downloadAnchor.setAttribute("download", `mercado_compare_backup_${new Date().toISOString().slice(0,10)}.json`);
+    document.body.appendChild(downloadAnchor);
+    downloadAnchor.click();
+    downloadAnchor.remove();
+    if (backupModal) backupModal.classList.add('hidden');
+  };
+}
 
-document.getElementById('triggerImportBtn').onclick = () => document.getElementById('importJsonInput').click();
-document.getElementById('importJsonInput').onchange = (e) => {
-  const fileReader = new FileReader();
-  if (e.target.files[0]) {
-    fileReader.readAsText(e.target.files[0], "UTF-8");
-    fileReader.onload = (event) => {
-      try {
-        const importedData = JSON.parse(event.target.result);
-        if (importedData.stores && importedData.items) {
-          stores = importedData.stores;
-          items = importedData.items;
-          saveData();
-          renderAll();
-          alert('Backup importado com sucesso!');
-          backupModal.classList.add('hidden');
-        }
-      } catch (error) { alert('Erro ao ler o arquivo JSON.'); }
-    };
-  }
-};
+const triggerImportBtn = document.getElementById('triggerImportBtn');
+const importJsonInput = document.getElementById('importJsonInput');
+if (triggerImportBtn && importJsonInput) {
+  triggerImportBtn.onclick = () => importJsonInput.click();
+  importJsonInput.onchange = (e) => {
+    const fileReader = new FileReader();
+    if (e.target.files[0]) {
+      fileReader.readAsText(e.target.files[0], "UTF-8");
+      fileReader.onload = (event) => {
+        try {
+          const importedData = JSON.parse(event.target.result);
+          if (importedData.stores && importedData.items) {
+            stores = importedData.stores;
+            items = importedData.items;
+            saveData();
+            renderAll();
+            alert('Backup importado com sucesso!');
+            if (backupModal) backupModal.classList.add('hidden');
+          }
+        } catch (error) { alert('Erro ao ler o arquivo JSON.'); }
+      };
+    }
+  };
+}
 
-document.getElementById('resetDataBtn').onclick = () => {
-  if (confirm('Deseja restaurar os dados originais?')) {
-    stores = defaultStores;
-    items = defaultItems;
-    activeStoreFilter = null;
-    activeCategoryFilter = 'Todos';
-    saveData();
-    renderAll();
-    backupModal.classList.add('hidden');
-  }
-};
+const resetDataBtn = document.getElementById('resetDataBtn');
+if (resetDataBtn) {
+  resetDataBtn.onclick = () => {
+    if (confirm('Deseja restaurar os dados originais?')) {
+      stores = defaultStores;
+      items = defaultItems;
+      activeStoreFilter = null;
+      activeCategoryFilter = 'Todos';
+      saveData();
+      renderAll();
+      if (backupModal) backupModal.classList.add('hidden');
+    }
+  };
+}
 
 /* ==========================================================================
    07. MODAL DE ADICIONAR / EDITAR ITENS E PRIORIDADE DE MERCADO
    ========================================================================== */
 const itemModal = document.getElementById('itemModal');
-document.getElementById('addItemBtnModal').onclick = () => {
-  document.getElementById('topMenuModal').classList.add('hidden');
-  openItemModal();
-};
-document.getElementById('closeItemModal').onclick = () => itemModal.classList.add('hidden');
+const addItemBtnModal = document.getElementById('addItemBtnModal');
+if (addItemBtnModal) {
+  addItemBtnModal.onclick = () => {
+    const topMenuModal = document.getElementById('topMenuModal');
+    if (topMenuModal) topMenuModal.classList.add('hidden');
+    openItemModal();
+  };
+}
+const closeItemModal = document.getElementById('closeItemModal');
+if (closeItemModal && itemModal) {
+  closeItemModal.onclick = () => itemModal.classList.add('hidden');
+}
 
 function openItemModal(item = null) {
-  document.getElementById('modalTitle').innerText = item ? 'Editar Item' : 'Novo Item';
-  document.getElementById('itemId').value = item ? item.id : '';
-  document.getElementById('itemName').value = item ? item.name : '';
-  document.getElementById('itemQuantity').value = item ? (item.quantity || 1) : 1;
-  document.getElementById('itemUnit').value = item ? (item.unit || 'UN') : 'UN';
-  document.getElementById('itemCategory').value = item ? (item.category || 'Higiene') : 'Higiene';
+  const modalTitle = document.getElementById('modalTitle');
+  if (modalTitle) modalTitle.innerText = item ? 'Editar Item' : 'Novo Item';
+  
+  const itemId = document.getElementById('itemId');
+  const itemName = document.getElementById('itemName');
+  const itemQuantity = document.getElementById('itemQuantity');
+  const itemUnit = document.getElementById('itemUnit');
+  const itemCategory = document.getElementById('itemCategory');
+
+  if (itemId) itemId.value = item ? item.id : '';
+  if (itemName) itemName.value = item ? item.name : '';
+  if (itemQuantity) itemQuantity.value = item ? (item.quantity || 1) : 1;
+  if (itemUnit) itemUnit.value = item ? (item.unit || 'UN') : 'UN';
+  if (itemCategory) itemCategory.value = item ? (item.category || 'Higiene') : 'Higiene';
 
   window.currentPreferredStore = item ? item.preferredStore : null;
 
   const priceInputsContainer = document.getElementById('priceInputs');
-  priceInputsContainer.innerHTML = stores.map(store => {
-    const isPreferred = window.currentPreferredStore === store.id;
-    return `
-      <div class="space-y-1 bg-[var(--bg-input)] p-2 rounded-xl border border-[var(--border-color)]">
-        <div class="flex items-center justify-between">
-          <span class="text-xs font-bold block">${store.name}</span>
-          <button type="button" onclick="togglePreferredStore('${store.id}')" id="pref-btn-${store.id}" class="flex items-center space-x-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all border ${isPreferred ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/50' : 'bg-[var(--bg-page)] text-[var(--text-sub)] border-[var(--border-color)] hover:border-orange-500'}">
-            <span class="w-2 h-2 rounded-full ${isPreferred ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-orange-400'}"></span>
-            <span>${isPreferred ? 'Prioritário' : 'Definir Prioridade'}</span>
-          </button>
+  if (priceInputsContainer) {
+    priceInputsContainer.innerHTML = stores.map(store => {
+      const isPreferred = window.currentPreferredStore === store.id;
+      return `
+        <div class="space-y-1 bg-[var(--bg-input)] p-2 rounded-xl border border-[var(--border-color)]">
+          <div class="flex items-center justify-between">
+            <span class="text-xs font-bold block">${store.name}</span>
+            <button type="button" onclick="togglePreferredStore('${store.id}')" id="pref-btn-${store.id}" class="flex items-center space-x-1 px-2.5 py-1 rounded-full text-[10px] font-bold transition-all border ${isPreferred ? 'bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 border-emerald-500/50' : 'bg-[var(--bg-page)] text-[var(--text-sub)] border-[var(--border-color)] hover:border-orange-500'}">
+              <span class="w-2 h-2 rounded-full ${isPreferred ? 'bg-emerald-500 shadow-[0_0_8px_rgba(16,185,129,0.8)]' : 'bg-orange-400'}"></span>
+              <span>${isPreferred ? 'Prioritário' : 'Definir Prioridade'}</span>
+            </button>
+          </div>
+          <div class="flex gap-2">
+            <input type="number" step="0.01" data-store-id="${store.id}" value="${item && item.prices && item.prices[store.id] !== undefined && item.prices[store.id] !== null ? item.prices[store.id] : ''}" placeholder="Preço (R$)" class="store-price-input w-28 px-2.5 py-1.5 text-xs border border-[var(--border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+            <input type="text" data-store-note-id="${store.id}" value="${item && item.storeNotes && item.storeNotes[store.id] ? item.storeNotes[store.id] : ''}" placeholder="Obs/Marca..." class="store-note-input flex-1 px-2.5 py-1.5 text-xs border border-[var(--border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
+          </div>
         </div>
-        <div class="flex gap-2">
-          <input type="number" step="0.01" data-store-id="${store.id}" value="${item && item.prices[store.id] !== undefined && item.prices[store.id] !== null ? item.prices[store.id] : ''}" placeholder="Preço (R$)" class="store-price-input w-28 px-2.5 py-1.5 text-xs border border-[var(--border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-          <input type="text" data-store-note-id="${store.id}" value="${item && item.storeNotes && item.storeNotes[store.id] ? item.storeNotes[store.id] : ''}" placeholder="Obs/Marca..." class="store-note-input flex-1 px-2.5 py-1.5 text-xs border border-[var(--border-color)] rounded-lg focus:outline-none focus:ring-2 focus:ring-orange-500">
-        </div>
-      </div>
-    `;
-  }).join('');
+      `;
+    }).join('');
+  }
 
-  itemModal.classList.remove('hidden');
+  if (itemModal) itemModal.classList.remove('hidden');
 }
 
 function togglePreferredStore(storeId) {
@@ -432,92 +469,108 @@ function openEditItemModal(id) {
   if (item) openItemModal(item);
 }
 
-document.getElementById('itemForm').onsubmit = (e) => {
-  e.preventDefault();
-  const id = document.getElementById('itemId').value;
-  const name = document.getElementById('itemName').value;
-  const quantity = parseInt(document.getElementById('itemQuantity').value) || 1;
-  const unit = document.getElementById('itemUnit').value;
-  const category = document.getElementById('itemCategory').value;
-  const preferredStore = window.currentPreferredStore || null;
+const itemForm = document.getElementById('itemForm');
+if (itemForm) {
+  itemForm.onsubmit = (e) => {
+    e.preventDefault();
+    const id = document.getElementById('itemId').value;
+    const name = document.getElementById('itemName').value;
+    const quantity = parseInt(document.getElementById('itemQuantity').value) || 1;
+    const unit = document.getElementById('itemUnit').value;
+    const category = document.getElementById('itemCategory').value;
+    const preferredStore = window.currentPreferredStore || null;
 
-  const prices = {};
-  const storeNotes = {};
+    const prices = {};
+    const storeNotes = {};
 
-  document.querySelectorAll('.store-price-input').forEach(input => {
-    const storeId = input.getAttribute('data-store-id');
-    const val = parseFloat(input.value);
-    prices[storeId] = isNaN(val) ? null : val;
-  });
-
-  document.querySelectorAll('.store-note-input').forEach(input => {
-    const storeId = input.getAttribute('data-store-note-id');
-    const text = input.value.trim();
-    if (text) storeNotes[storeId] = text;
-  });
-
-  if (id) {
-    const item = items.find(i => i.id === id);
-    if (item) {
-      item.name = name;
-      item.quantity = quantity;
-      item.unit = unit;
-      item.category = category;
-      item.preferredStore = preferredStore;
-      item.prices = prices;
-      item.storeNotes = storeNotes;
-    }
-  } else {
-    items.push({
-      id: Date.now().toString(),
-      name,
-      quantity,
-      unit,
-      category,
-      preferredStore,
-      checked: false,
-      prices,
-      storeNotes
+    document.querySelectorAll('.store-price-input').forEach(input => {
+      const storeId = input.getAttribute('data-store-id');
+      const val = parseFloat(input.value);
+      prices[storeId] = isNaN(val) ? null : val;
     });
-  }
 
-  saveData();
-  renderAll();
-  itemModal.classList.add('hidden');
-};
+    document.querySelectorAll('.store-note-input').forEach(input => {
+      const storeId = input.getAttribute('data-store-note-id');
+      const text = input.value.trim();
+      if (text) storeNotes[storeId] = text;
+    });
+
+    if (id) {
+      const item = items.find(i => i.id === id);
+      if (item) {
+        item.name = name;
+        item.quantity = quantity;
+        item.unit = unit;
+        item.category = category;
+        item.preferredStore = preferredStore;
+        item.prices = prices;
+        item.storeNotes = storeNotes;
+      }
+    } else {
+      items.push({
+        id: Date.now().toString(),
+        name,
+        quantity,
+        unit,
+        category,
+        preferredStore,
+        checked: false,
+        prices,
+        storeNotes
+      });
+    }
+
+    saveData();
+    renderAll();
+    if (itemModal) itemModal.classList.add('hidden');
+  };
+}
 
 /* ==========================================================================
    08. MODAL DE GERENCIAR MERCADOS
    ========================================================================== */
 const storeModal = document.getElementById('storeModal');
-document.getElementById('manageStoresBtnModal').onclick = () => {
-  document.getElementById('topMenuModal').classList.add('hidden');
-  openStoreModal();
-};
-document.getElementById('closeStoreModal').onclick = () => storeModal.classList.add('hidden');
+const manageStoresBtnModal = document.getElementById('manageStoresBtnModal');
+if (manageStoresBtnModal) {
+  manageStoresBtnModal.onclick = () => {
+    const topMenuModal = document.getElementById('topMenuModal');
+    if (topMenuModal) topMenuModal.classList.add('hidden');
+    openStoreModal();
+  };
+}
+const closeStoreModal = document.getElementById('closeStoreModal');
+if (closeStoreModal && storeModal) {
+  closeStoreModal.onclick = () => storeModal.classList.add('hidden');
+}
 
 function openStoreModal() {
   const storeList = document.getElementById('storeList');
-  storeList.innerHTML = stores.map(store => `
-    <div class="flex items-center justify-between bg-[var(--bg-input)] p-2.5 rounded-2xl border border-[var(--border-color)]">
-      <span class="text-xs font-semibold">${store.name}</span>
-      <button onclick="removeStore('${store.id}')" class="text-rose-500 hover:opacity-80 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
-    </div>
-  `).join('');
-  storeModal.classList.remove('hidden');
+  if (storeList) {
+    storeList.innerHTML = stores.map(store => `
+      <div class="flex items-center justify-between bg-[var(--bg-input)] p-2.5 rounded-2xl border border-[var(--border-color)]">
+        <span class="text-xs font-semibold">${store.name}</span>
+        <button onclick="removeStore('${store.id}')" class="text-rose-500 hover:opacity-80 p-1"><svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg></button>
+      </div>
+    `).join('');
+  }
+  if (storeModal) storeModal.classList.remove('hidden');
 }
 
-document.getElementById('addStoreBtn').onclick = () => {
-  const input = document.getElementById('newStoreName');
-  const name = input.value.trim();
-  if (name) {
-    stores.push({ id: 's_' + Date.now(), name });
-    input.value = '';
-    saveData();
-    renderAll();
-    openStoreModal();
-  }
-};
+const addStoreBtn = document.getElementById('addStoreBtn');
+if (addStoreBtn) {
+  addStoreBtn.onclick = () => {
+    const input = document.getElementById('newStoreName');
+    if (!input) return;
+    const name = input.value.trim();
+    if (name) {
+      stores.push({ id: 's_' + Date.now(), name });
+      input.value = '';
+      saveData();
+      renderAll();
+      openStoreModal();
+    }
+  };
+}
 
 function removeStore(id) {
   if (stores.length <= 1) {
@@ -530,7 +583,10 @@ function removeStore(id) {
   }
 }
 
-document.getElementById('searchInputModal').oninput = () => renderCardsList();
+const searchInputModal = document.getElementById('searchInputModal');
+if (searchInputModal) {
+  searchInputModal.oninput = () => renderCardsList();
+}
 
 /* ==========================================================================
    09. GESTÃO DE TEMA (Claro/Escuro) E CORES DAS BARRAS DO SISTEMA
@@ -539,26 +595,41 @@ const themeToggleBtnModal = document.getElementById('themeToggleBtnModal');
 
 function applyTheme(isDark) {
   const metaThemeColor = document.querySelector('meta[name="theme-color"]');
+  const sunIcon = document.getElementById('sunIcon');
+  const moonIcon = document.getElementById('moonIcon');
   
   if (isDark) {
     document.documentElement.classList.add('dark');
     document.documentElement.style.colorScheme = 'dark';
+    if (sunIcon) sunIcon.classList.remove('hidden');
+    if (moonIcon) moonIcon.classList.add('hidden');
     localStorage.setItem('mc_theme', 'dark');
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#0b0b0e');
   } else {
     document.documentElement.classList.remove('dark');
     document.documentElement.style.colorScheme = 'light';
+    if (sunIcon) sunIcon.classList.add('hidden');
+    if (moonIcon) moonIcon.classList.remove('hidden');
     localStorage.setItem('mc_theme', 'light');
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#f4f4f6');
   }
 }
 
-themeToggleBtnModal.onclick = () => applyTheme(!document.documentElement.classList.contains('dark'));
+if (themeToggleBtnModal) {
+  themeToggleBtnModal.onclick = () => applyTheme(!document.documentElement.classList.contains('dark'));
+}
 
 // Controle do Botão Flutuante para abrir/fechar o menu superior
 const topMenuModal = document.getElementById('topMenuModal');
-document.getElementById('openTopMenuBtn').onclick = () => topMenuModal.classList.remove('hidden');
-document.getElementById('closeTopMenuModal').onclick = () => topMenuModal.classList.add('hidden');
+const openTopMenuBtn = document.getElementById('openTopMenuBtn');
+const closeTopMenuModal = document.getElementById('closeTopMenuModal');
+
+if (openTopMenuBtn && topMenuModal) {
+  openTopMenuBtn.onclick = () => topMenuModal.classList.remove('hidden');
+}
+if (closeTopMenuModal && topMenuModal) {
+  closeTopMenuModal.onclick = () => topMenuModal.classList.add('hidden');
+}
 
 document.addEventListener('DOMContentLoaded', () => {
   applyTheme(localStorage.getItem('mc_theme') !== 'light');
