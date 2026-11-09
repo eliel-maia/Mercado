@@ -23,7 +23,7 @@
   <!-- Contentor Principal -->
   <main class="flex-1 w-full space-y-2.5 pt-2 pb-6 max-w-md mx-auto px-2 sm:px-3">
 
-    <!-- Card Superior Flutuante (Rola e some ao subir a lista) -->
+    <!-- Card Superior (Título, Busca, Novo Item e Mercados - Rola e some ao subir) -->
     <div class="app-card p-4 rounded-3xl shadow-xl border space-y-3.5 relative overflow-hidden">
       
       <!-- Linha 1: Título e Botões de Ação (Instalar, Tema, Backup) -->
@@ -76,7 +76,7 @@
 
     </div>
 
-    <!-- Bloco Fixo / Sticky (Categorias + Valores dos Mercados travados juntos no topo, sem linhas) -->
+    <!-- Bloco Fixo / Sticky (Apenas Categorias + Valores dos Mercados travados juntos no topo) -->
     <div class="sticky top-0 z-40 bg-[var(--bg-page)]/95 backdrop-blur-md py-1.5 space-y-2">
       <!-- Pílulas de Filtro por Categoria -->
       <div class="overflow-x-auto scrollbar-thin py-0.5">
@@ -89,12 +89,12 @@
       </div>
     </div>
 
-    <!-- Lista Dinâmica de Itens de Compras -->
+    <!-- Lista Dinâmica de Itens de Compras (Passa por baixo dos valores dos mercados suavemente) -->
     <div class="space-y-2.5 pt-1" id="cardsListContainer"></div>
 
   </main>
 
-  <!-- Modal de Backup e Restauro -->
+  <!-- Modais -->
   <div id="backupModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
     <div class="app-card rounded-3xl max-w-sm w-full p-5 space-y-4 shadow-2xl border border-[var(--border-color)] relative">
       <div class="flex items-center justify-between">
@@ -113,7 +113,6 @@
     </div>
   </div>
 
-  <!-- Modal de Adicionar / Editar Item -->
   <div id="itemModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
     <div class="app-card rounded-3xl max-w-md w-full p-4 space-y-3 shadow-2xl border border-[var(--border-color)] max-h-[90vh] overflow-y-auto scrollbar-thin">
       <h3 id="modalTitle" class="text-sm font-bold">Adicionar Item</h3>
@@ -158,7 +157,6 @@
     </div>
   </div>
 
-  <!-- Modal de Gerenciar Mercados -->
   <div id="storeModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 hidden flex items-center justify-center p-3">
     <div class="app-card rounded-3xl max-w-sm w-full p-4 space-y-3.5 shadow-2xl border border-[var(--border-color)]">
       <h3 class="text-sm font-bold">Gerenciar Mercados</h3>
