@@ -30,7 +30,7 @@
         </button>
       </div>
 
-      <!-- Conteúdo original do Card Superior -->
+      <!-- Conteúdo do Card Superior -->
       <div class="space-y-3.5">
         <!-- Linha 1: Título e Botões de Ação (Instalar, Tema, Backup) -->
         <div class="flex items-center justify-between">
@@ -50,7 +50,8 @@
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"></path></svg>
             </button>
             <button id="themeToggleBtnModal" title="Alternar Tema" class="p-2.5 border border-[var(--border-color)] bg-[var(--bg-input)] hover:opacity-80 rounded-xl transition-all shadow-sm flex items-center justify-center">
-              <svg class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.03 9.03 0 0012 21a9.03 9.03 0 008.354-5.646z"></path></svg>
+              <svg id="sunIcon" class="w-4 h-4 text-amber-500 hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+              <svg id="moonIcon" class="w-4 h-4 text-orange-500" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.03 9.03 0 0012 21a9.03 9.03 0 008.354-5.646z"></path></svg>
             </button>
             <button id="backupModalBtnModal" title="Backup e Restaurar" class="p-2.5 border border-[var(--border-color)] bg-[var(--bg-input)] hover:opacity-80 rounded-xl transition-all shadow-sm flex items-center justify-center text-[var(--text-main)]">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><ellipse cx="12" cy="5" rx="9" ry="3"></ellipse><path d="M21 12C21 13.66 16.97 15 12 15C7.03 15 3 13.66 3 12"></path><path d="M3 5V19C3 20.66 7.03 22 12 22C16.97 22 21 20.66 21 19V5"></path></svg>
@@ -84,7 +85,7 @@
     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 110-4m0 4v2m0-6V4"></path></svg>
   </button>
 
-  <!-- Contentor Principal (Inicia diretamente a partir das pílulas de categorias e mercados fixos) -->
+  <!-- Contentor Principal -->
   <main class="flex-1 w-full space-y-2.5 pt-2 pb-6 max-w-md mx-auto px-2 sm:px-3">
 
     <!-- Bloco Fixo Sticky (Categorias + Valores dos Mercados) -->
