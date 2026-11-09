@@ -72,8 +72,8 @@ let activeCategoryFilter = 'Todos';
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v80');
-    const savedItems = localStorage.getItem('mc_items_v80');
+    const savedStores = localStorage.getItem('mc_stores_v81');
+    const savedItems = localStorage.getItem('mc_items_v81');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
@@ -83,8 +83,8 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v80', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v80', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v81', JSON.stringify(stores));
+  localStorage.setItem('mc_items_v81', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -320,7 +320,7 @@ document.getElementById('backupModalBtn').onclick = () => backupModal.classList.
 document.getElementById('closeBackupModal').onclick = () => backupModal.classList.add('hidden');
 
 document.getElementById('exportJsonBtn').onclick = () => {
-  const data = { version: 'v80', stores, items };
+  const data = { version: 'v81', stores, items };
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
@@ -547,7 +547,7 @@ function applyTheme(isDark) {
     document.documentElement.classList.remove('dark');
     document.documentElement.style.colorScheme = 'light';
     sunIcon.classList.add('hidden');
-    moonIcon.classList.remove('hidden');
+    moonIcon.classList.add('hidden');
     localStorage.setItem('mc_theme', 'light');
     if (metaThemeColor) metaThemeColor.setAttribute('content', '#f4f4f6');
   }
