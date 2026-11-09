@@ -18,12 +18,10 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="style.css">
 </head>
-<body class="min-h-screen flex flex-col">
+<body class="h-screen overflow-hidden flex flex-col">
 
-  <!-- Contentor Principal -->
-  <main class="flex-1 w-full space-y-2.5 pt-2 pb-6 max-w-md mx-auto px-2 sm:px-3">
-
-    <!-- Card Superior (Título, Busca, Novo Item e Mercados - Rola e some ao subir) -->
+  <!-- Cabeçalho Fixo Superior (Some ao rolar a página para cima) -->
+  <div class="w-full max-w-md mx-auto px-2 sm:px-3 pt-2 flex-shrink-0">
     <div class="app-card p-4 rounded-3xl shadow-xl border space-y-3.5 relative overflow-hidden">
       
       <!-- Linha 1: Título e Botões de Ação (Instalar, Tema, Backup) -->
@@ -75,23 +73,24 @@
       </div>
 
     </div>
+  </div>
 
-    <!-- Bloco Fixo / Sticky (Apenas Categorias + Valores dos Mercados travados juntos no topo) -->
-    <div class="sticky top-0 z-40 bg-[var(--bg-page)]/95 backdrop-blur-md py-1.5 space-y-2">
-      <!-- Pílulas de Filtro por Categoria -->
-      <div class="overflow-x-auto scrollbar-thin py-0.5">
-        <div id="categoryPills" class="flex items-center space-x-2 min-w-max"></div>
-      </div>
-
-      <!-- Cards de Resumo Superior (Totais por Mercado) -->
-      <div class="app-card px-2 py-2.5 rounded-2xl border shadow-lg overflow-x-auto scrollbar-thin">
-        <div id="storeSummaries" class="flex items-center divide-x divide-[var(--border-color)] w-full min-w-max"></div>
-      </div>
+  <!-- Bloco Fixo no Topo (Categorias + Valores dos Mercados travados juntos) -->
+  <div class="w-full max-w-md mx-auto px-2 sm:px-3 py-1.5 space-y-2 flex-shrink-0 z-40 bg-[var(--bg-page)]">
+    <!-- Pílulas de Filtro por Categoria -->
+    <div class="overflow-x-auto scrollbar-thin py-0.5">
+      <div id="categoryPills" class="flex items-center space-x-2 min-w-max"></div>
     </div>
 
-    <!-- Lista Dinâmica de Itens de Compras (Passa por baixo dos valores dos mercados suavemente) -->
-    <div class="space-y-2.5 pt-1" id="cardsListContainer"></div>
+    <!-- Cards de Resumo Superior (Totais por Mercado) -->
+    <div class="app-card px-2 py-2.5 rounded-2xl border shadow-lg overflow-x-auto scrollbar-thin">
+      <div id="storeSummaries" class="flex items-center divide-x divide-[var(--border-color)] w-full min-w-max"></div>
+    </div>
+  </div>
 
+  <!-- Contentor da Lista (Área que rola por baixo dos cards fixos) -->
+  <main class="flex-1 w-full max-w-md mx-auto px-2 sm:px-3 overflow-y-auto scrollbar-thin pb-6 pt-1">
+    <div class="space-y-2.5" id="cardsListContainer"></div>
   </main>
 
   <!-- Modais -->
