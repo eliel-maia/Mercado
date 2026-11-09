@@ -68,12 +68,12 @@ const defaultItems = [
 let stores = [];
 let items = [];
 let activeStoreFilter = null;
-let activeCategoryFilter = 'Todos';
+let activeCategoryFilter = null; // Começa sem filtro ativo (mostra todos)
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v84');
-    const savedItems = localStorage.getItem('mc_items_v84');
+    const savedStores = localStorage.getItem('mc_stores_v85');
+    const savedItems = localStorage.getItem('mc_items_v85');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
@@ -83,8 +83,8 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v84', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v84', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v85', JSON.stringify(stores));
+  localStorage.setItem('mc_items_v85', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -99,28 +99,30 @@ function renderAll() {
 }
 
 /* ==========================================================================
-   03. RENDERIZAÇÃO DE CATEGORIAS E FILTROS
+   03. RENDERIZAÇÃO DE CATEGORIAS E FILTROS (Sem botão 'Todos', com Toggle)
    ========================================================================== */
 function renderCategoryPills() {
   const container = document.getElementById('categoryPills');
   if (!container) return;
-  const categoriesSet = new Set(items.map(i => i.category || 'Outros'));
-  const categories = ['Todos', ...Array.from(categoriesSet)];
+  const categories = Array.from(new Set(items.map(i => i.category || 'Outros')));
 
   container.innerHTML = categories.map(cat => {
-    const count = cat === 'Todos' ? items.length : items.filter(i => (i.category || 'Outros') === cat).length;
     const isSelected = activeCategoryFilter === cat;
 
     return `
-      <button onclick="filterByCategory('${cat}')" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm ${isSelected ? 'bg-orange-500 text-white shadow-orange-500/30 shadow-md' : 'app-card border border-[var(--border-color)] opacity-70 hover:opacity-100'}">
-        ${cat}${cat === 'Todos' ? ` (${count})` : ''}
+      <button onclick="toggleCategory('${cat}')" class="px-3.5 py-1.5 rounded-full text-xs font-bold transition-all shadow-sm ${isSelected ? 'bg-orange-500 text-white shadow-orange-500/30 shadow-md' : 'app-card border border-[var(--border-color)] opacity-70 hover:opacity-100'}">
+        ${cat}
       </button>
     `;
   }).join('');
 }
 
-function filterByCategory(cat) {
-  activeCategoryFilter = cat;
+function toggleCategory(cat) {
+  if (activeCategoryFilter === cat) {
+    activeCategoryFilter = null; // Desmarca se clicar de novo
+  } else {
+    activeCategoryFilter = cat;  // Ativa a categoria clicada
+  }
   renderAll();
 }
 
@@ -135,7 +137,7 @@ function renderCardsList() {
 
   let filteredItems = items.filter(item => {
     const matchesSearch = item.name.toLowerCase().includes(searchQuery);
-    const matchesCat = activeCategoryFilter === 'Todos' || (item.category || 'Outros') === activeCategoryFilter;
+    const matchesCat = activeCategoryFilter === null || (item.category || 'Outros') === activeCategoryFilter;
     
     if (activeStoreFilter) {
       const validPrices = Object.entries(item.prices)
@@ -332,7 +334,7 @@ if (closeBackupModal && backupModal) {
 const exportJsonBtn = document.getElementById('exportJsonBtn');
 if (exportJsonBtn) {
   exportJsonBtn.onclick = () => {
-    const data = { version: 'v84', stores, items };
+    const data = { version: 'v85', stores, items };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
@@ -376,7 +378,7 @@ if (resetDataBtn) {
       stores = defaultStores;
       items = defaultItems;
       activeStoreFilter = null;
-      activeCategoryFilter = 'Todos';
+      activeCategoryFilter = null;
       saveData();
       renderAll();
       if (backupModal) backupModal.classList.add('hidden');
