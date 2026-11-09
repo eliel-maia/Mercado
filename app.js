@@ -72,8 +72,8 @@ let activeCategoryFilter = 'Todos';
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v76');
-    const savedItems = localStorage.getItem('mc_items_v76');
+    const savedStores = localStorage.getItem('mc_stores_v78');
+    const savedItems = localStorage.getItem('mc_items_v78');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
   } catch (e) {
@@ -83,8 +83,8 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v76', JSON.stringify(stores));
-  localStorage.setItem('mc_items_v76', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v78', JSON.stringify(stores));
+  localStorage.setItem('mc_items_v78', JSON.stringify(items));
 }
 
 function formatCurrency(value) {
@@ -320,7 +320,7 @@ document.getElementById('backupModalBtn').onclick = () => backupModal.classList.
 document.getElementById('closeBackupModal').onclick = () => backupModal.classList.add('hidden');
 
 document.getElementById('exportJsonBtn').onclick = () => {
-  const data = { version: 'v76', stores, items };
+  const data = { version: 'v78', stores, items };
   const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
   const downloadAnchor = document.createElement('a');
   downloadAnchor.setAttribute("href", dataStr);
