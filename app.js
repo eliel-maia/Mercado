@@ -47,13 +47,10 @@ function triggerInstall() {
 /* ==========================================================================
    02. DADOS INICIAIS E PERSISTÊNCIA (LocalStorage)
    ========================================================================== */
-/* ==========================================================================
-   02. DADOS INICIAIS E PERSISTÊNCIA (LocalStorage)
-   ========================================================================== */
 const defaultStores = [
   { id: 's1', name: 'Confiança' },
   { id: 's2', name: 'Tauste' },
-  { id: 's3', name: 'Avenida'},
+  { id: 's3', name: 'Garça' },
   { id: 's4', name: 'Atacadão' },
   { id: 's5', name: 'Max' },
   { id: 's6', name: 'Serve Todos' },
@@ -62,6 +59,7 @@ const defaultStores = [
 
 const defaultCategories = ['Higiene', 'Alimentos', 'Limpeza', 'Hortifruti', 'Açougue', 'Frios', 'Outros'];
 
+// Lista de itens inicial vazia conforme solicitado
 const defaultItems = [];
 
 let stores = [];
@@ -91,6 +89,16 @@ function saveData() {
   localStorage.setItem('mc_items_v88', JSON.stringify(items));
 }
 
+function formatCurrency(value) {
+  if (value === null || value === undefined || isNaN(value)) return '-';
+  return `R$&nbsp;${value.toFixed(2).replace('.', ',')}`;
+}
+
+function renderAll() {
+  renderCategoryPills();
+  renderCardsList();
+  renderSummaries();
+}
 
 /* ==========================================================================
    03. RENDERIZAÇÃO DE CATEGORIAS E FILTROS
@@ -330,7 +338,7 @@ if (closeBackupModal && backupModal) {
 const exportJsonBtn = document.getElementById('exportJsonBtn');
 if (exportJsonBtn) {
   exportJsonBtn.onclick = () => {
-    const data = { version: 'v87', stores, categories, items };
+    const data = { version: 'v88', stores, categories, items };
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data, null, 2));
     const downloadAnchor = document.createElement('a');
     downloadAnchor.setAttribute("href", dataStr);
