@@ -47,25 +47,22 @@ function triggerInstall() {
 /* ==========================================================================
    02. DADOS INICIAIS E PERSISTÊNCIA (LocalStorage)
    ========================================================================== */
+/* ==========================================================================
+   02. DADOS INICIAIS E PERSISTÊNCIA (LocalStorage)
+   ========================================================================== */
 const defaultStores = [
   { id: 's1', name: 'Confiança' },
   { id: 's2', name: 'Tauste' },
-  { id: 's3', name: 'Garça' },
+  { id: 's3', name: 'Avenida'},
   { id: 's4', name: 'Atacadão' },
-  { id: 's5', name: 'Max' }
+  { id: 's5', name: 'Max' },
+  { id: 's6', name: 'Serve Todos' },
+  { id: 's7', name: 'Big Mart' }
 ];
 
 const defaultCategories = ['Higiene', 'Alimentos', 'Limpeza', 'Hortifruti', 'Açougue', 'Frios', 'Outros'];
 
-const defaultItems = [
-  { id: '1', name: 'Papel Higiênico H', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 27.90, s2: 27.99, s3: 23.99, s4: 22.50, s5: 24.50 }, storeNotes: { s3: 'c/24 fls' } },
-  { id: '2', name: 'Listerine', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 16.98, s2: 36.90, s3: 22.99, s4: 18.90, s5: 19.50 }, storeNotes: { s1: '500ml' } },
-  { id: '3', name: 'Asepxia', quantity: 1, unit: 'UN', category: 'Higiene', preferredStore: null, checked: false, prices: { s1: 11.45, s2: 11.20, s3: null, s4: 10.99, s5: 11.00 }, storeNotes: {} },
-  { id: '4', name: 'Filtro Café', quantity: 2, unit: 'UN', category: 'Alimentos', preferredStore: null, checked: false, prices: { s1: 4.29, s2: 4.29, s3: 4.29, s4: 3.99, s5: 4.10 }, storeNotes: { s1: '3 corações' } },
-  { id: '5', name: 'Guardanapo', quantity: 1, unit: 'UN', category: 'Limpeza', preferredStore: null, checked: false, prices: { s1: 8.59, s2: 8.59, s3: 7.99, s4: 8.10, s5: 8.30 }, storeNotes: { s3: '200 folhas' } },
-  { id: '6', name: 'Mamão', quantity: 1, unit: 'Kg', category: 'Hortifruti', preferredStore: null, checked: false, prices: { s1: 11.98, s2: 13.90, s3: 9.99, s4: 10.50, s5: 10.20 }, storeNotes: {} },
-  { id: '7', name: 'Maçã', quantity: 1, unit: 'Kg', category: 'Hortifruti', preferredStore: null, checked: false, prices: { s1: 9.45, s2: 9.80, s3: 8.99, s4: 8.79, s5: 9.10 }, storeNotes: {} }
-];
+const defaultItems = [];
 
 let stores = [];
 let categories = [];
@@ -75,9 +72,9 @@ let activeCategoryFilter = null;
 
 function initData() {
   try {
-    const savedStores = localStorage.getItem('mc_stores_v87');
-    const savedCategories = localStorage.getItem('mc_categories_v87');
-    const savedItems = localStorage.getItem('mc_items_v87');
+    const savedStores = localStorage.getItem('mc_stores_v88');
+    const savedCategories = localStorage.getItem('mc_categories_v88');
+    const savedItems = localStorage.getItem('mc_items_v88');
     stores = savedStores ? JSON.parse(savedStores) : defaultStores;
     categories = savedCategories ? JSON.parse(savedCategories) : defaultCategories;
     items = savedItems ? JSON.parse(savedItems) : defaultItems;
@@ -89,21 +86,11 @@ function initData() {
 }
 
 function saveData() {
-  localStorage.setItem('mc_stores_v87', JSON.stringify(stores));
-  localStorage.setItem('mc_categories_v87', JSON.stringify(categories));
-  localStorage.setItem('mc_items_v87', JSON.stringify(items));
+  localStorage.setItem('mc_stores_v88', JSON.stringify(stores));
+  localStorage.setItem('mc_categories_v88', JSON.stringify(categories));
+  localStorage.setItem('mc_items_v88', JSON.stringify(items));
 }
 
-function formatCurrency(value) {
-  if (value === null || value === undefined || isNaN(value)) return '-';
-  return `R$&nbsp;${value.toFixed(2).replace('.', ',')}`;
-}
-
-function renderAll() {
-  renderCategoryPills();
-  renderCardsList();
-  renderSummaries();
-}
 
 /* ==========================================================================
    03. RENDERIZAÇÃO DE CATEGORIAS E FILTROS
